@@ -1,3 +1,5 @@
+# This respository has moved! Please go to https://github.com/cmss13-devs/cmss13 instead.
+
 # LICENSE
 
 The code for CM-SS13 is licensed under the [GNU Affero General Public License v3](http://www.gnu.org/licenses/agpl.html), which can be found in full in [/LICENSE-AGPL3](/LICENSE-AGPL3).
