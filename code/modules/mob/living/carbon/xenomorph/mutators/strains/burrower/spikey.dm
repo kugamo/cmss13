@@ -1,5 +1,5 @@
 /datum/xeno_mutator/spikey
-	name = "STRAIN: Burrower - Spiker"
+	name = "STRAIN: Burrower - Spikey"
 	description = "GUH"
 	cost = MUTATOR_COST_EXPENSIVE
 	individual_only = TRUE
@@ -24,12 +24,13 @@
 		return
 
 	var/mob/living/carbon/Xenomorph/Burrower/B = MS.xeno
-	B.mutation_type = BURROWER_SPIKEY
-
-	apply_behavior_holder(B)
-
 	mutator_update_actions(B)
 	MS.recalculate_actions(description, flavor_description)
+
+	B.recalculate_everything()
+
+	apply_behavior_holder(B)
+	B.mutation_type = BURROWER_SPIKEY
 
 /datum/behavior_delegate/burrower_spikey
 	name = "Spikey Burrower Behavior Delegate"
@@ -41,6 +42,7 @@
 	if(bound_xeno.burrow)
 		bound_xeno.icon_state = "[bound_xeno.mutation_type] Burrower Burrowed"
 		return TRUE
+
 /*
 	if(bound_xeno.fortify)
 		bound_xeno.icon_state = "[bound_xeno.mutation_type] Defender Fortify"
