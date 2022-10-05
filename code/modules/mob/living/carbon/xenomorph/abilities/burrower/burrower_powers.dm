@@ -209,3 +209,64 @@
 		for(var/X in actions)
 			var/datum/action/act = X
 			act.update_button_icon()
+
+/datum/action/xeno_action/activable/burrowed_spikes/use_ability(atom/A)
+	var/mob/living/carbon/Xenomorph/X = owner
+
+	if (!action_cooldown_check())
+		return
+
+	if (!X.check_state())
+		return
+
+	// Get line of turfs
+	var/list/turf/target_turfs = list()
+
+	var/facing = Get_Compass_Dir(X, A)
+	var/turf/T = X.loc
+	var/turf/temp = X.loc
+	var/list/telegraph_atom_list = list()
+
+	for (var/x in 0 to 3)
+		temp = get_step(T, facing)
+		if(!temp || temp.density || temp.opacity)
+			break
+
+		var/blocked = FALSE
+		for(var/obj/structure/S in temp)
+			if(istype(S, /obj/structure/window/framed))
+				var/obj/structure/window/framed/W = S
+				if(!W.unslashable)
+					W.shatter_window(TRUE)
+
+			if(S.opacity)
+				blocked = TRUE
+				break
+		if(blocked)
+			break
+
+		T = temp
+		target_turfs += T
+		telegraph_atom_list += new /obj/effect/xenomorph/xeno_telegraph/red(T, 0.25 SECONDS)
+
+	// Extract our 'optimal' turf, if it exists
+	if (target_turfs.len >= 2)
+		X.animation_attack_on(target_turfs[target_turfs.len], 15)
+
+	X.visible_message(SPAN_XENODANGER("[X] shoots spikes though the weeds in front of it!"), SPAN_XENODANGER("You shoot your spikes though the weeds in front of you!"))
+
+	// Loop through our turfs, finding any humans there and dealing damage to them
+	for (var/turf/target_turf in target_turfs)
+		for (var/mob/living/carbon/C in target_turf)
+			if (C.stat == DEAD)
+				continue
+
+			if(X.can_not_harm(C))
+				continue
+			X.flick_attack_overlay(C, "slash")
+			C.apply_armoured_damage(damage, ARMOR_MELEE, BRUTE)
+			playsound(get_turf(C), "alien_claw_flesh", 30, TRUE)
+
+	apply_cooldown()
+	..()
+	return

@@ -321,6 +321,7 @@
 // Burrower strain flags
 #define BURROWER_NORMAL 	"Normal"
 #define BURROWER_TREMOR		"Tremor"
+#define BURROWER_SPIKEY 	"Spikey"
 
 // Sentinel strain flags
 #define SENTINEL_NORMAL		"Normal"

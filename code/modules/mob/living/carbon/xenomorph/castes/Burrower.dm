@@ -99,6 +99,11 @@
 	if(burrow)
 		return 0
 
+/mob/living/carbon/Xenomorph/Burrower/attack_alien()
+	if(burrow)
+		return
+	..()
+
 /datum/behavior_delegate/burrower_base
 	name = "Base Burrower Behavior Delegate"
 
