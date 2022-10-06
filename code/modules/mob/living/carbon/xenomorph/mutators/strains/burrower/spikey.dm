@@ -4,6 +4,8 @@
 	cost = MUTATOR_COST_EXPENSIVE
 	individual_only = TRUE
 	caste_whitelist = list(XENO_CASTE_BURROWER)
+	keystone = TRUE
+	behavior_delegate_type = /datum/behavior_delegate/burrower_spikey
 	mutator_actions_to_remove = list(
 		/datum/action/xeno_action/onclick/build_tunnel,
 		/datum/action/xeno_action/onclick/tremor,
@@ -15,8 +17,6 @@
 	mutator_actions_to_add = list(
 		/datum/action/xeno_action/activable/burrowed_spikes,
 	)
-	behavior_delegate_type = /datum/behavior_delegate/burrower_spikey
-	keystone = TRUE
 
 /datum/xeno_mutator/burrower_spikey/apply_mutator(datum/mutator_set/individual_mutators/MS)
 	. = ..()
@@ -24,13 +24,13 @@
 		return
 
 	var/mob/living/carbon/Xenomorph/Burrower/B = MS.xeno
+	B.mutation_type = BURROWER_SPIKEY
+
 	mutator_update_actions(B)
 	MS.recalculate_actions(description, flavor_description)
 
-	B.recalculate_everything()
-
 	apply_behavior_holder(B)
-	B.mutation_type = BURROWER_SPIKEY
+	B.recalculate_everything()
 
 /datum/behavior_delegate/burrower_spikey
 	name = "Spikey Burrower Behavior Delegate"
