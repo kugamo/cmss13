@@ -32,8 +32,11 @@
 	apply_behavior_holder(B)
 	B.recalculate_everything()
 
+
 /datum/behavior_delegate/burrower_spikey
 	name = "Spikey Burrower Behavior Delegate"
+
+/*
 
 /datum/behavior_delegate/burrower_spikey/on_update_icons()
 	if(bound_xeno.stat == DEAD)
@@ -43,7 +46,7 @@
 		bound_xeno.icon_state = "[bound_xeno.mutation_type] Burrower Burrowed"
 		return TRUE
 
-/*
+
 	if(bound_xeno.fortify)
 		bound_xeno.icon_state = "[bound_xeno.mutation_type] Defender Fortify"
 		return TRUE

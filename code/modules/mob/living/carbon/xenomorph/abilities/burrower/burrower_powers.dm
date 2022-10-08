@@ -270,3 +270,23 @@
 	apply_cooldown()
 	..()
 	return
+
+/datum/action/xeno_action/activable/sunken_tail/use_ability(atom/A)
+	var/mob/living/carbon/Xenomorph/X = owner
+	if (!istype(X))
+		return
+
+	if (!action_cooldown_check())
+		return
+
+	if(!A || A.layer >= FLY_LAYER || !isturf(X.loc) || !X.check_state())
+		return
+
+	X.visible_message(SPAN_XENOWARNING("The [X] GFuhg [A]!"), SPAN_XENOWARNING("You rhrt [A]!"))
+
+	var/turf/target = locate(A.x, A.y, A.z)
+
+
+	apply_cooldown()
+	..()
+	return

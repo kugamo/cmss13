@@ -46,3 +46,16 @@
 
 	// Config
 	var/damage = 45
+
+/datum/action/xeno_action/activable/sunken_tail
+	name = "Sunken Tail"
+	ability_name = "sunken tail"
+	action_icon_state = "rav_scissor_cut"
+	macro_path = /datum/action/xeno_action/verb/verb_sunken_tail
+	action_type = XENO_ACTION_CLICK
+	ability_primacy = XENO_PRIMARY_ACTION_2
+	xeno_cooldown = 10 SECONDS
+	plasma_cost = 25
+
+	// Config
+	var/damage = 45
