@@ -212,6 +212,8 @@
 
 /datum/action/xeno_action/activable/burrowed_spikes/use_ability(atom/A)
 	var/mob/living/carbon/Xenomorph/X = owner
+	if (!istype(X))
+		return
 
 	if (!action_cooldown_check())
 		return
@@ -227,7 +229,7 @@
 	var/turf/temp = X.loc
 	var/list/telegraph_atom_list = list()
 
-	for (var/x in 0 to 3)
+	for (var/x in 0 to 4)
 		temp = get_step(T, facing)
 		if(!temp || temp.density || temp.opacity)
 			break
@@ -253,7 +255,7 @@
 	if (target_turfs.len >= 2)
 		X.animation_attack_on(target_turfs[target_turfs.len], 15)
 
-	X.visible_message(SPAN_XENODANGER("[X] shoots spikes though the weeds in front of it!"), SPAN_XENODANGER("You shoot your spikes though the weeds in front of you!"))
+	X.visible_message(SPAN_XENODANGER("[X] shoots spikes though the ground in front of it!"), SPAN_XENODANGER("You shoot your spikes though the ground in front of you!"))
 
 	// Loop through our turfs, finding any humans there and dealing damage to them
 	for (var/turf/target_turf in target_turfs)
@@ -279,12 +281,28 @@
 	if (!action_cooldown_check())
 		return
 
-	if(!A || A.layer >= FLY_LAYER || !isturf(X.loc) || !X.check_state())
+	if(!A || A.layer >= FLY_LAYER || !X.check_state())
 		return
 
-	X.visible_message(SPAN_XENOWARNING("The [X] GFuhg [A]!"), SPAN_XENOWARNING("You rhrt [A]!"))
+
 
 	var/turf/target = locate(A.x, A.y, A.z)
+	var/list/telegraph_atom_list = list()
+	telegraph_atom_list += new /obj/effect/xenomorph/xeno_telegraph/red(target, windup_delay)
+
+	if(!do_after(X, windup_delay, INTERRUPT_ALL | BEHAVIOR_IMMOBILE, BUSY_ICON_HOSTILE))
+		telegraph_atom_list -= new /obj/effect/xenomorph/xeno_telegraph/red(target, windup_delay) //Fix this shit
+		return
+	X.visible_message(SPAN_XENOWARNING("The [X] stabs its tail in the ground at [A]!"), SPAN_XENOWARNING("You stab your tail into the ground at [A]!"))
+	for (var/mob/living/carbon/C in target)
+		if (C.stat == DEAD)
+			continue
+
+		if(X.can_not_harm(C))
+			continue
+		X.flick_attack_overlay(C, "slash")
+		C.apply_armoured_damage(damage, ARMOR_MELEE, BRUTE)
+		playsound(get_turf(C), "alien_claw_flesh", 30, TRUE)
 
 
 	apply_cooldown()

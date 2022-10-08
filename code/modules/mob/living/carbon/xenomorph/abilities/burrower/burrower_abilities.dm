@@ -45,7 +45,7 @@
 	plasma_cost = 25
 
 	// Config
-	var/damage = 45
+	var/damage = 30
 
 /datum/action/xeno_action/activable/sunken_tail
 	name = "Sunken Tail"
@@ -54,8 +54,9 @@
 	macro_path = /datum/action/xeno_action/verb/verb_sunken_tail
 	action_type = XENO_ACTION_CLICK
 	ability_primacy = XENO_PRIMARY_ACTION_2
-	xeno_cooldown = 10 SECONDS
-	plasma_cost = 25
+	xeno_cooldown = 20 SECONDS
+	plasma_cost = 50
 
 	// Config
-	var/damage = 45
+	var/damage = 55
+	var/windup_delay = 1 SECONDS

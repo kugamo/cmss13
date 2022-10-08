@@ -1,4 +1,4 @@
-/datum/xeno_mutator/spikey
+/datum/xeno_mutator/burrower_spikey
 	name = "STRAIN: Burrower - Spikey"
 	description = "GUH"
 	cost = MUTATOR_COST_EXPENSIVE
@@ -16,6 +16,7 @@
 	)
 	mutator_actions_to_add = list(
 		/datum/action/xeno_action/activable/burrowed_spikes,
+		/datum/action/xeno_action/activable/sunken_tail
 	)
 
 /datum/xeno_mutator/burrower_spikey/apply_mutator(datum/mutator_set/individual_mutators/MS)
@@ -36,12 +37,12 @@
 /datum/behavior_delegate/burrower_spikey
 	name = "Spikey Burrower Behavior Delegate"
 
-/*
+
 
 /datum/behavior_delegate/burrower_spikey/on_update_icons()
 	if(bound_xeno.stat == DEAD)
 		return
-
+/*
 	if(bound_xeno.burrow)
 		bound_xeno.icon_state = "[bound_xeno.mutation_type] Burrower Burrowed"
 		return TRUE
