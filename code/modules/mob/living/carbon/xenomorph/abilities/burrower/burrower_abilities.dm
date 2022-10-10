@@ -11,11 +11,7 @@
 
 /datum/action/xeno_action/activable/burrow/use_ability(atom/A)
 	var/mob/living/carbon/Xenomorph/X = owner
-/*	if (X.mutation_type != WARRIOR_BOXER)
-		do_base_warrior_punch(H, L)
-	else
-		do_boxer_punch(H,L)*/
-	if(X.burrow)
+	if(X.burrow && X.mutation_type != BURROWER_SPIKEY)
 		X.tunnel(get_turf(A))
 	else
 		X.burrow()
@@ -40,12 +36,13 @@
 	action_icon_state = "rav_scissor_cut"
 	macro_path = /datum/action/xeno_action/verb/verb_burrowed_spikes
 	action_type = XENO_ACTION_CLICK
-	ability_primacy = XENO_PRIMARY_ACTION_3
+	ability_primacy = XENO_PRIMARY_ACTION_1
 	xeno_cooldown = 10 SECONDS
-	plasma_cost = 25
+	plasma_cost = 50
 
 	// Config
 	var/damage = 30
+	var/chain_separation_delay = 0.2 SECONDS //Delay between each tile hit
 
 /datum/action/xeno_action/activable/sunken_tail
 	name = "Sunken Tail"
@@ -55,7 +52,7 @@
 	action_type = XENO_ACTION_CLICK
 	ability_primacy = XENO_PRIMARY_ACTION_2
 	xeno_cooldown = 20 SECONDS
-	plasma_cost = 50
+	plasma_cost = 100
 
 	// Config
 	var/damage = 55

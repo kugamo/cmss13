@@ -74,7 +74,7 @@
 
 /mob/living/carbon/Xenomorph/Burrower/update_canmove()
 	. = ..()
-	if(burrow)
+	if(burrow && mutation_type != BURROWER_SPIKEY)
 		density = FALSE
 		canmove = FALSE
 		return canmove
@@ -103,6 +103,10 @@
 	if(burrow)
 		return
 	..()
+
+///mob/living/carbon/Xenomorph/Burrower/Collide(atom/movable/AM)
+//	if(burrow && mutation_type == BURROWER_SPIKEY)
+//		return
 
 /datum/behavior_delegate/burrower_base
 	name = "Base Burrower Behavior Delegate"

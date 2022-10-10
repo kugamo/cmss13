@@ -42,12 +42,12 @@
 /datum/behavior_delegate/burrower_spikey/on_update_icons()
 	if(bound_xeno.stat == DEAD)
 		return
-/*
+
 	if(bound_xeno.burrow)
 		bound_xeno.icon_state = "[bound_xeno.mutation_type] Burrower Burrowed"
 		return TRUE
 
-
+/*
 	if(bound_xeno.fortify)
 		bound_xeno.icon_state = "[bound_xeno.mutation_type] Defender Fortify"
 		return TRUE

@@ -24,6 +24,30 @@
 
 	used_burrow = TRUE
 
+	if(mutation_type == BURROWER_SPIKEY) //Spikey Burrower specific
+		if(burrow)
+			burrow_off()
+			return
+		var/obj/effect/alien/weeds/weeds = locate() in T
+		if(!weeds)
+			to_chat(src, SPAN_XENOWARNING("You need to burrow on weeds."))
+			addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
+			return
+		if(!do_after(src, 1.5 SECONDS, INTERRUPT_ALL, BUSY_ICON_HOSTILE))
+			addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
+			return
+		to_chat(src, SPAN_XENOWARNING("You begin burrowing yourself into the weeds."))
+		burrow = TRUE
+		invisibility = 101
+		density = FALSE
+		if(caste.fire_immunity == FIRE_IMMUNITY_NONE)
+			RegisterSignal(src, COMSIG_LIVING_PREIGNITION, .proc/fire_immune)
+			RegisterSignal(src, COMSIG_LIVING_FLAMER_CROSSED, .proc/flamer_crossed_immune)
+		update_icons()
+		addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
+		process_burrow_spiker()
+		return
+
 	to_chat(src, SPAN_XENOWARNING("You begin burrowing yourself into the ground."))
 	if(!do_after(src, 1.5 SECONDS, INTERRUPT_ALL, BUSY_ICON_HOSTILE))
 		addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
@@ -53,6 +77,17 @@
 		overwatch(observed_xeno, TRUE)
 	if(burrow)
 		addtimer(CALLBACK(src, .proc/process_burrow), 1 SECONDS)
+
+/mob/living/carbon/Xenomorph/proc/process_burrow_spiker(var/turf/T = get_turf(src))
+	var/obj/effect/alien/weeds/weeds = locate() in T
+	if(!burrow)
+		return
+	if(!weeds)
+		burrow_off()
+	if(observed_xeno)
+		overwatch(observed_xeno, TRUE)
+	if(burrow)
+		addtimer(CALLBACK(src, .proc/process_burrow_spiker), 1 SECONDS)
 
 /mob/living/carbon/Xenomorph/proc/burrow_off()
 	if(caste_type && GLOB.xeno_datum_list[caste_type])
@@ -210,6 +245,7 @@
 			var/datum/action/act = X
 			act.update_button_icon()
 
+//Spikey Burrower Abilities
 /datum/action/xeno_action/activable/burrowed_spikes/use_ability(atom/A)
 	var/mob/living/carbon/Xenomorph/X = owner
 	if (!istype(X))
@@ -219,6 +255,9 @@
 		return
 
 	if (!X.check_state())
+		return
+
+	if (!check_and_use_plasma_owner())
 		return
 
 	// Get line of turfs
@@ -249,7 +288,7 @@
 
 		T = temp
 		target_turfs += T
-		telegraph_atom_list += new /obj/effect/xenomorph/xeno_telegraph/red(T, 0.25 SECONDS)
+		telegraph_atom_list += new /obj/effect/xenomorph/xeno_telegraph/brown(T, 0.25 SECONDS)
 
 	// Extract our 'optimal' turf, if it exists
 	if (target_turfs.len >= 2)
@@ -258,7 +297,15 @@
 	X.visible_message(SPAN_XENODANGER("[X] shoots spikes though the ground in front of it!"), SPAN_XENODANGER("You shoot your spikes though the ground in front of you!"))
 
 	// Loop through our turfs, finding any humans there and dealing damage to them
+	INVOKE_ASYNC(src, .proc/handle_damage, X, target_turfs, telegraph_atom_list)
+
+	apply_cooldown()
+	..()
+	return
+
+/datum/action/xeno_action/activable/burrowed_spikes/proc/handle_damage(var/mob/living/carbon/Xenomorph/X, target_turfs, telegraph_atom_list)
 	for (var/turf/target_turf in target_turfs)
+		telegraph_atom_list += new /obj/effect/xenomorph/xeno_telegraph/red(target_turf, chain_separation_delay)
 		for (var/mob/living/carbon/C in target_turf)
 			if (C.stat == DEAD)
 				continue
@@ -268,10 +315,8 @@
 			X.flick_attack_overlay(C, "slash")
 			C.apply_armoured_damage(damage, ARMOR_MELEE, BRUTE)
 			playsound(get_turf(C), "alien_claw_flesh", 30, TRUE)
+		sleep(chain_separation_delay)
 
-	apply_cooldown()
-	..()
-	return
 
 /datum/action/xeno_action/activable/sunken_tail/use_ability(atom/A)
 	var/mob/living/carbon/Xenomorph/X = owner
@@ -281,17 +326,20 @@
 	if (!action_cooldown_check())
 		return
 
-	if(!A || A.layer >= FLY_LAYER || !X.check_state())
+	if (!A || A.layer >= FLY_LAYER || !X.check_state())
 		return
 
-
+	if (!check_and_use_plasma_owner())
+		return
 
 	var/turf/target = locate(A.x, A.y, A.z)
 	var/list/telegraph_atom_list = list()
 	telegraph_atom_list += new /obj/effect/xenomorph/xeno_telegraph/red(target, windup_delay)
 
 	if(!do_after(X, windup_delay, INTERRUPT_ALL | BEHAVIOR_IMMOBILE, BUSY_ICON_HOSTILE))
-		telegraph_atom_list -= new /obj/effect/xenomorph/xeno_telegraph/red(target, windup_delay) //Fix this shit
+		for(var/obj/effect/tele in telegraph_atom_list)
+			qdel(tele)
+		apply_cooldown() //no spam
 		return
 	X.visible_message(SPAN_XENOWARNING("The [X] stabs its tail in the ground at [A]!"), SPAN_XENOWARNING("You stab your tail into the ground at [A]!"))
 	for (var/mob/living/carbon/C in target)
