@@ -32,19 +32,29 @@
 		if(!weeds)
 			to_chat(src, SPAN_XENOWARNING("You need to burrow on weeds."))
 			addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
+			for(var/X in actions)
+				var/datum/action/act = X
+				act.update_button_icon()
 			return
 		if(!do_after(src, 1.5 SECONDS, INTERRUPT_ALL, BUSY_ICON_HOSTILE))
 			addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
+			for(var/X in actions)
+				var/datum/action/act = X
+				act.update_button_icon()
 			return
 		to_chat(src, SPAN_XENOWARNING("You begin burrowing yourself into the weeds."))
 		burrow = TRUE
 		invisibility = 101
 		density = FALSE
+		add_temp_pass_flags(PASS_MOB_THRU)
 		if(caste.fire_immunity == FIRE_IMMUNITY_NONE)
 			RegisterSignal(src, COMSIG_LIVING_PREIGNITION, .proc/fire_immune)
 			RegisterSignal(src, COMSIG_LIVING_FLAMER_CROSSED, .proc/flamer_crossed_immune)
 		update_icons()
 		addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
+		for(var/X in actions)
+			var/datum/action/act = X
+			act.update_button_icon()
 		process_burrow_spiker()
 		return
 
@@ -94,6 +104,8 @@
 		caste = GLOB.xeno_datum_list[caste_type]
 	to_chat(src, SPAN_NOTICE("You resurface."))
 	burrow = FALSE
+	if(mutation_type == BURROWER_SPIKEY)
+		remove_temp_pass_flags(PASS_MOB_THRU)
 	if(caste.fire_immunity == FIRE_IMMUNITY_NONE)
 		UnregisterSignal(src, COMSIG_LIVING_PREIGNITION)
 		UnregisterSignal(src, COMSIG_LIVING_FLAMER_CROSSED)
@@ -109,7 +121,8 @@
 
 /mob/living/carbon/Xenomorph/proc/do_burrow_cooldown()
 	used_burrow = FALSE
-	to_chat(src, SPAN_NOTICE("You can now surface."))
+	if(burrow)
+		to_chat(src, SPAN_NOTICE("You can now surface."))
 	for(var/X in actions)
 		var/datum/action/act = X
 		act.update_button_icon()
@@ -275,11 +288,6 @@
 
 		var/blocked = FALSE
 		for(var/obj/structure/S in temp)
-			if(istype(S, /obj/structure/window/framed))
-				var/obj/structure/window/framed/W = S
-				if(!W.unslashable)
-					W.shatter_window(TRUE)
-
 			if(S.opacity)
 				blocked = TRUE
 				break
@@ -315,6 +323,12 @@
 			X.flick_attack_overlay(C, "slash")
 			C.apply_armoured_damage(damage, ARMOR_MELEE, BRUTE)
 			playsound(get_turf(C), "alien_claw_flesh", 30, TRUE)
+		for(var/obj/structure/S in target_turf)
+			if(istype(S, /obj/structure/window/framed))
+				var/obj/structure/window/framed/W = S
+				if(!W.unslashable)
+					W.shatter_window(TRUE)
+					playsound(target_turf, "windowshatter", 50, TRUE)
 		sleep(chain_separation_delay)
 
 
