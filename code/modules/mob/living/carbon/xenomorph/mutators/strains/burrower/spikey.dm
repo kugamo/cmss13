@@ -32,6 +32,7 @@
 
 	apply_behavior_holder(B)
 	B.recalculate_everything()
+	B.acid_level = 0
 
 
 /datum/behavior_delegate/burrower_spikey

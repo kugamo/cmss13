@@ -72,6 +72,7 @@
 	. = ..()
 	sight |= SEE_TURFS
 
+
 /mob/living/carbon/Xenomorph/Burrower/update_canmove()
 	. = ..()
 	if(burrow && mutation_type != BURROWER_SPIKEY)
@@ -103,10 +104,6 @@
 	if(burrow)
 		return
 	..()
-
-///mob/living/carbon/Xenomorph/Burrower/Collide(atom/movable/AM)
-//	if(burrow && mutation_type == BURROWER_SPIKEY)
-//		return
 
 /datum/behavior_delegate/burrower_base
 	name = "Base Burrower Behavior Delegate"

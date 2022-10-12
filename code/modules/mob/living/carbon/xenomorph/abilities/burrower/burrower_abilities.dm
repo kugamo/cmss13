@@ -57,3 +57,4 @@
 	// Config
 	var/damage = 55
 	var/windup_delay = 1 SECONDS
+	var/max_distance = 5

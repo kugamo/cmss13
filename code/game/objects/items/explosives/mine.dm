@@ -197,6 +197,10 @@
 		return
 	if(L.get_target_lock(iff_signal) || isrobot(L))
 		return
+	if(isXeno(L))
+		var/mob/living/carbon/Xenomorph/Xeno = L
+		if(Xeno.burrow)
+			return
 	L.visible_message(SPAN_DANGER("[icon2html(src, viewers(src))] The [name] clicks as [L] moves in front of it."), \
 	SPAN_DANGER("[icon2html(src, L)] The [name] clicks as you move in front of it."), \
 	SPAN_DANGER("You hear a click."))

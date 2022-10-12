@@ -281,12 +281,18 @@
 					target = null
 				targets.Remove(A)
 				continue
-
+			
 			if(M.get_target_lock(faction_group) || M.invisibility)
 				if(M == target)
 					target = null
 				targets.Remove(M)
 				continue
+			
+			if(isXeno(A))
+				var/mob/living/carbon/Xenomorph/Xeno = A
+				if(Xeno.burrow)
+					targets.Remove(Xeno)
+					continue
 
 		else if(!(A.type in other_targets))
 			if(A == target)

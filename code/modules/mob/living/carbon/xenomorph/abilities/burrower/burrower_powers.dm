@@ -30,31 +30,25 @@
 			return
 		var/obj/effect/alien/weeds/weeds = locate() in T
 		if(!weeds)
-			to_chat(src, SPAN_XENOWARNING("You need to burrow on weeds."))
+			to_chat(src, SPAN_XENOWARNING("You need to burrow on weeds!"))
 			addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
-			for(var/X in actions)
-				var/datum/action/act = X
-				act.update_button_icon()
 			return
 		if(!do_after(src, 1.5 SECONDS, INTERRUPT_ALL, BUSY_ICON_HOSTILE))
 			addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
-			for(var/X in actions)
-				var/datum/action/act = X
-				act.update_button_icon()
 			return
 		to_chat(src, SPAN_XENOWARNING("You begin burrowing yourself into the weeds."))
 		burrow = TRUE
 		invisibility = 101
 		density = FALSE
-		add_temp_pass_flags(PASS_MOB_THRU)
-		if(caste.fire_immunity == FIRE_IMMUNITY_NONE)
-			RegisterSignal(src, COMSIG_LIVING_PREIGNITION, .proc/fire_immune)
-			RegisterSignal(src, COMSIG_LIVING_FLAMER_CROSSED, .proc/flamer_crossed_immune)
+		add_temp_pass_flags(PASS_MOB_THRU|PASS_BUILDING|PASS_UNDER|PASS_BURROWED)
+		RegisterSignal(src, COMSIG_LIVING_PREIGNITION, .proc/fire_immune)
+		RegisterSignal(src, list(
+			COMSIG_LIVING_FLAMER_CROSSED,
+			COMSIG_LIVING_FLAMER_FLAMED,
+		), .proc/flamer_crossed_immune)
+		mouse_opacity = FALSE
 		update_icons()
 		addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
-		for(var/X in actions)
-			var/datum/action/act = X
-			act.update_button_icon()
 		process_burrow_spiker()
 		return
 
@@ -71,7 +65,10 @@
 	density = FALSE
 	if(caste.fire_immunity == FIRE_IMMUNITY_NONE)
 		RegisterSignal(src, COMSIG_LIVING_PREIGNITION, .proc/fire_immune)
-		RegisterSignal(src, COMSIG_LIVING_FLAMER_CROSSED, .proc/flamer_crossed_immune)
+		RegisterSignal(src, list(
+			COMSIG_LIVING_FLAMER_CROSSED,
+			COMSIG_LIVING_FLAMER_FLAMED,
+		), .proc/flamer_crossed_immune)
 	update_canmove()
 	update_icons()
 	addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
@@ -105,10 +102,14 @@
 	to_chat(src, SPAN_NOTICE("You resurface."))
 	burrow = FALSE
 	if(mutation_type == BURROWER_SPIKEY)
-		remove_temp_pass_flags(PASS_MOB_THRU)
+		remove_temp_pass_flags(PASS_MOB_THRU|PASS_BUILDING|PASS_UNDER|PASS_BURROWED)
+		mouse_opacity = TRUE
 	if(caste.fire_immunity == FIRE_IMMUNITY_NONE)
-		UnregisterSignal(src, COMSIG_LIVING_PREIGNITION)
-		UnregisterSignal(src, COMSIG_LIVING_FLAMER_CROSSED)
+		UnregisterSignal(src, list(
+			COMSIG_LIVING_PREIGNITION,
+			COMSIG_LIVING_FLAMER_CROSSED,
+			COMSIG_LIVING_FLAMER_FLAMED,
+		))
 	frozen = FALSE
 	invisibility = FALSE
 	anchored = FALSE
@@ -261,16 +262,16 @@
 //Spikey Burrower Abilities
 /datum/action/xeno_action/activable/burrowed_spikes/use_ability(atom/A)
 	var/mob/living/carbon/Xenomorph/X = owner
-	if (!istype(X))
+	if(!istype(X))
 		return
 
-	if (!action_cooldown_check())
+	if(!action_cooldown_check())
 		return
 
-	if (!X.check_state())
+	if(!A || A.layer >= FLY_LAYER || !X.check_state())
 		return
 
-	if (!check_and_use_plasma_owner())
+	if(!check_and_use_plasma_owner())
 		return
 
 	// Get line of turfs
@@ -334,16 +335,20 @@
 
 /datum/action/xeno_action/activable/sunken_tail/use_ability(atom/A)
 	var/mob/living/carbon/Xenomorph/X = owner
-	if (!istype(X))
+	if(!istype(X))
 		return
 
-	if (!action_cooldown_check())
+	if(!action_cooldown_check())
 		return
 
-	if (!A || A.layer >= FLY_LAYER || !X.check_state())
+	if(!A || A.layer >= FLY_LAYER || !X.check_state())
 		return
 
-	if (!check_and_use_plasma_owner())
+	if(!check_and_use_plasma_owner())
+		return
+
+	if(get_dist(A, X) > max_distance)
+		to_chat(X, SPAN_XENOWARNING("[A] is too far away!"))
 		return
 
 	var/turf/target = locate(A.x, A.y, A.z)
@@ -355,7 +360,7 @@
 			qdel(tele)
 		apply_cooldown() //no spam
 		return
-	X.visible_message(SPAN_XENOWARNING("The [X] stabs its tail in the ground at [A]!"), SPAN_XENOWARNING("You stab your tail into the ground at [A]!"))
+	X.visible_message(SPAN_XENOWARNING("The [X] stabs its tail in the ground toward [A]!"), SPAN_XENOWARNING("You stab your tail into the ground toward [A]!"))
 	for (var/mob/living/carbon/C in target)
 		if (C.stat == DEAD)
 			continue
@@ -365,6 +370,12 @@
 		X.flick_attack_overlay(C, "slash")
 		C.apply_armoured_damage(damage, ARMOR_MELEE, BRUTE)
 		playsound(get_turf(C), "alien_claw_flesh", 30, TRUE)
+	for(var/obj/structure/S in target)
+		if(istype(S, /obj/structure/window/framed))
+			var/obj/structure/window/framed/W = S
+			if(!W.unslashable)
+				W.shatter_window(TRUE)
+				playsound(target, "windowshatter", 50, TRUE)
 
 
 	apply_cooldown()
