@@ -19,3 +19,10 @@
 	set hidden = 1
 	var/action_name = "Sunken Tail"
 	handle_xeno_macro(src, action_name) 
+
+/datum/action/xeno_action/verb/verb_reinforcing_burrow()
+	set category = "Alien"
+	set name = "Reinforcing Burrow"
+	set hidden = 1
+	var/action_name = "Reinforcing Burrow"
+	handle_xeno_macro(src, action_name) 

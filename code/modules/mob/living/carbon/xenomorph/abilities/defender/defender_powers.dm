@@ -154,21 +154,14 @@
 	if (!istype(xeno))
 		return
 
-	if(xeno.crest_defense && xeno.steelcrest)
-		to_chat(src, SPAN_XENOWARNING("You cannot fortify while your crest is already down!"))
-		return
-
-	if(xeno.crest_defense)
-		to_chat(src, SPAN_XENOWARNING("You cannot use fortify with your crest lowered."))
-		return
-
 	if(!xeno.check_state())
 		return
 
-	if (!action_cooldown_check())
+	if(!action_cooldown_check())
 		return
 
-	playsound(get_turf(xeno), 'sound/effects/stonedoor_openclose.ogg', 30, 1)
+	var/turf/T = get_turf(xeno)
+	playsound(T, 'sound/effects/stonedoor_openclose.ogg', 30, 1)
 
 	if(!xeno.fortify)
 		RegisterSignal(owner, COMSIG_MOB_DEATH, .proc/death_check)
@@ -202,19 +195,13 @@
 		return
 
 	if(fortify_state)
-		to_chat(X, SPAN_XENOWARNING("You tuck yourself into a defensive stance."))
-		if(X.steelcrest)
-			X.armor_deflection_buff += 10
-			X.armor_explosive_buff += 60
-			X.ability_speed_modifier += 3
-			X.damage_modifier -= XENO_DAMAGE_MOD_SMALL
-		else
-			X.armor_deflection_buff += 30
-			X.armor_explosive_buff += 60
-			X.frozen = TRUE
-			X.anchored = TRUE
-			X.small_explosives_stun = FALSE
-			X.update_canmove()
+		to_chat(X, SPAN_XENOWARNING("You burrow yourself halfway into the weeds."))
+		X.armor_deflection_buff += 30
+		X.armor_explosive_buff += 60
+		X.frozen = TRUE
+		X.anchored = TRUE
+		X.small_explosives_stun = FALSE
+		X.update_canmove()
 		X.mob_size = MOB_SIZE_IMMOBILE //knockback immune
 		X.mob_flags &= ~SQUEEZE_UNDER_VEHICLES
 		X.update_icons()
@@ -223,15 +210,9 @@
 		to_chat(X, SPAN_XENOWARNING("You resume your normal stance."))
 		X.frozen = FALSE
 		X.anchored = FALSE
-		if(X.steelcrest)
-			X.armor_deflection_buff -= 10
-			X.armor_explosive_buff -= 60
-			X.ability_speed_modifier -= 3
-			X.damage_modifier += XENO_DAMAGE_MOD_SMALL
-		else
-			X.armor_deflection_buff -= 30
-			X.armor_explosive_buff -= 60
-			X.small_explosives_stun = TRUE
+		X.armor_deflection_buff -= 30
+		X.armor_explosive_buff -= 60
+		X.small_explosives_stun = TRUE
 		X.mob_size = MOB_SIZE_XENO //no longer knockback immune
 		X.mob_flags |= SQUEEZE_UNDER_VEHICLES
 		X.update_canmove()

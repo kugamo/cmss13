@@ -355,7 +355,7 @@
 				var/obj/structure/window/framed/W = S
 				if(!W.unslashable)
 					W.shatter_window(TRUE)
-
+					playsound(T, "windowshatter", 50, TRUE)
 			if(S.opacity)
 				return FALSE
 

@@ -55,6 +55,22 @@
 	plasma_cost = 100
 
 	// Config
-	var/damage = 55
+	var/base_damage = 55
 	var/windup_delay = 1 SECONDS
 	var/max_distance = 5
+	var/reinforced_range_bonus = 3
+	var/reinforced_damage_bonus = 15
+
+/datum/action/xeno_action/activable/reinforcing_burrow
+	name = "Reinforcing Burrow"
+	ability_name = "reinforcing burrow"
+	action_icon_state = "rav_scissor_cut"
+	macro_path = /datum/action/xeno_action/verb/verb_reinforcing_burrow
+	action_type = XENO_ACTION_CLICK
+	ability_primacy = XENO_PRIMARY_ACTION_4
+	xeno_cooldown = 15 SECONDS
+	plasma_cost = 0
+
+	// Config
+	var/windup_delay = 1 SECONDS
+	var/reinforced_vision_range = 8

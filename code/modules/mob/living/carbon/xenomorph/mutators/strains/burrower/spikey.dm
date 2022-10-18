@@ -16,7 +16,8 @@
 	)
 	mutator_actions_to_add = list(
 		/datum/action/xeno_action/activable/burrowed_spikes,
-		/datum/action/xeno_action/activable/sunken_tail
+		/datum/action/xeno_action/activable/sunken_tail,
+		/datum/action/xeno_action/activable/reinforcing_burrow
 	)
 
 /datum/xeno_mutator/burrower_spikey/apply_mutator(datum/mutator_set/individual_mutators/MS)
@@ -48,11 +49,7 @@
 		bound_xeno.icon_state = "[bound_xeno.mutation_type] Burrower Burrowed"
 		return TRUE
 
-/*
+
 	if(bound_xeno.fortify)
-		bound_xeno.icon_state = "[bound_xeno.mutation_type] Defender Fortify"
+		bound_xeno.icon_state = "[bound_xeno.mutation_type] Burrower Fortify"
 		return TRUE
-	if(bound_xeno.crest_defense)
-		bound_xeno.icon_state = "[bound_xeno.mutation_type] Defender Crest"
-		return TRUE
-*/
