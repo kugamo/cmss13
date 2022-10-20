@@ -68,7 +68,7 @@
 	macro_path = /datum/action/xeno_action/verb/verb_reinforcing_burrow
 	action_type = XENO_ACTION_CLICK
 	ability_primacy = XENO_PRIMARY_ACTION_4
-	xeno_cooldown = 15 SECONDS
+	xeno_cooldown = 5 SECONDS
 	plasma_cost = 0
 
 	// Config

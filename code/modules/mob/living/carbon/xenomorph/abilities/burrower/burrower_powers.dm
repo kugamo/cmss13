@@ -46,6 +46,7 @@
 			COMSIG_LIVING_FLAMER_FLAMED,
 		), .proc/flamer_crossed_immune)
 		mouse_opacity = FALSE
+		playsound(src.loc, 'sound/effects/burrowing_s.ogg', 25)
 		update_icons()
 		addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
 		process_burrow_spiker()
@@ -68,6 +69,7 @@
 			COMSIG_LIVING_FLAMER_CROSSED,
 			COMSIG_LIVING_FLAMER_FLAMED,
 		), .proc/flamer_crossed_immune)
+	playsound(src.loc, 'sound/effects/burrowing_b.ogg', 25)
 	update_canmove()
 	update_icons()
 	addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
@@ -113,6 +115,7 @@
 	invisibility = FALSE
 	anchored = FALSE
 	density = TRUE
+	playsound(src.loc, 'sound/effects/burrowoff.ogg', 25)
 	for(var/mob/living/carbon/human/H in loc)
 		H.KnockDown(2)
 	addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
@@ -288,7 +291,7 @@
 
 		var/blocked = FALSE
 		for(var/obj/structure/S in temp)
-			if(S.opacity)
+			if(S.opacity || (istype(S, /obj/structure/barricade) && S.density))
 				blocked = TRUE
 				break
 		if(blocked)
@@ -296,7 +299,7 @@
 
 		T = temp
 		target_turfs += T
-		telegraph_atom_list += new /obj/effect/xenomorph/xeno_telegraph/brown(T, 0.25 SECONDS)
+		telegraph_atom_list += new /obj/effect/xenomorph/xeno_telegraph/red(T, 0.25 SECONDS)
 
 	// Extract our 'optimal' turf, if it exists
 	if (target_turfs.len >= 2)
@@ -323,7 +326,7 @@
 				continue
 			//X.flick_attack_overlay(C, "slash")
 			C.apply_armoured_damage(damage, ARMOR_MELEE, BRUTE)
-			playsound(get_turf(C), "alien_claw_flesh", 30, TRUE)
+			playsound(get_turf(C), "alien_bite", 50, TRUE)
 		for(var/obj/structure/S in target_turf)
 			if(istype(S, /obj/structure/window/framed))
 				var/obj/structure/window/framed/W = S
@@ -385,7 +388,7 @@
 		//X.flick_attack_overlay(C, "slash")
 		C.apply_armoured_damage(damage, ARMOR_MELEE, BRUTE)
 		to_chat(C, SPAN_WARNING("You are stabbed with a tail from below!"))
-		playsound(get_turf(C), "alien_claw_flesh", 30, TRUE)
+		playsound(get_turf(C), "alien_bite", 50, TRUE)
 	for(var/obj/structure/S in target)
 		if(istype(S, /obj/structure/window/framed))
 			var/obj/structure/window/framed/W = S
@@ -428,7 +431,7 @@
 		apply_cooldown()
 		return
 
-	playsound(T, 'sound/effects/stonedoor_openclose.ogg', 30, 1) //tobechanged
+	playsound(T, 'sound/effects/burrowing_b.ogg', 25)
 
 	if(!xeno.fortify)
 		RegisterSignal(owner, COMSIG_MOB_DEATH, .proc/death_check)

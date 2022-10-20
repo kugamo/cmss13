@@ -461,7 +461,7 @@
 	icon_state = "ground_spike"
 	mouse_opacity = FALSE
 
-/obj/effect/xenomorph/ground_spike/New(loc, ttl = 7)
+/obj/effect/xenomorph/ground_spike/New(loc, ttl = 10)
 	..(loc)
 	QDEL_IN(src, ttl)
 
