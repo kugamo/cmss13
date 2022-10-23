@@ -95,6 +95,11 @@
 		return
 	..()
 
+/mob/living/carbon/Xenomorph/Burrower/bullet_act()
+	if(burrow)
+		return
+	. = ..()
+
 /mob/living/carbon/Xenomorph/Burrower/get_projectile_hit_chance()
 	. = ..()
 	if(burrow)

@@ -116,8 +116,9 @@
 	anchored = FALSE
 	density = TRUE
 	playsound(src.loc, 'sound/effects/burrowoff.ogg', 25)
-	for(var/mob/living/carbon/human/H in loc)
-		H.KnockDown(2)
+	for(var/mob/living/carbon/C in loc)
+		if(!can_not_harm(C))
+			C.KnockDown(2)
 	addtimer(CALLBACK(src, .proc/do_burrow_cooldown), (caste ? caste.burrow_cooldown : 5 SECONDS))
 	update_canmove()
 	update_icons()
@@ -319,7 +320,7 @@
 		//telegraph_atom_list += new /obj/effect/xenomorph/xeno_telegraph/red(target_turf, chain_separation_delay)
 		telegraph_atom_list += new /obj/effect/xenomorph/ground_spike(target_turf)
 		for (var/mob/living/carbon/C in target_turf)
-			if (C.stat == DEAD)
+			if (C.stat == DEAD || HAS_TRAIT(C, TRAIT_NESTED))
 				continue
 
 			if(X.can_not_harm(C))
@@ -380,7 +381,7 @@
 	X.visible_message(SPAN_XENOWARNING("The [X] stabs its tail in the ground toward [A]!"), SPAN_XENOWARNING("You stab your tail into the ground toward [A]!"))
 	telegraph_atom_list += new /obj/effect/xenomorph/ground_spike(target)
 	for (var/mob/living/carbon/C in target)
-		if (C.stat == DEAD)
+		if (C.stat == DEAD || HAS_TRAIT(C, TRAIT_NESTED))
 			continue
 
 		if(X.can_not_harm(C))
