@@ -110,6 +110,20 @@
 		return
 	..()
 
+/mob/living/carbon/Xenomorph/Burrower/Move(NewLoc, direct)
+	. = ..()
+
+	if(burrow && mutation_type == BURROWER_SPIKEY)
+		var/obj/effect/alien/weeds/weeds = locate() in NewLoc
+		weeds.update_icon(TRUE)
+
+/mob/living/carbon/Xenomorph/Burrower/Moved(atom/oldloc, direction, Forced)
+	. = ..()
+	if(burrow && mutation_type == BURROWER_SPIKEY)
+		var/obj/effect/alien/weeds/weeds = locate() in oldloc
+		weeds.update_icon()
+		addtimer(CALLBACK(weeds, /obj/effect/alien/weeds/update_icon), 0.5 SECONDS, TIMER_UNIQUE)
+
 /datum/behavior_delegate/burrower_base
 	name = "Base Burrower Behavior Delegate"
 

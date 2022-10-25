@@ -267,7 +267,7 @@
 			if(W)
 				W.update_icon()
 
-/obj/effect/alien/weeds/update_icon()
+/obj/effect/alien/weeds/update_icon(burrowed)
 	overlays.Cut()
 
 	var/my_dir = 0
@@ -308,6 +308,9 @@
 			secretion = image('icons/mob/hostiles/Effects.dmi', "secrete_dir[-icon_dir]")
 
 		overlays += secretion
+
+	if(burrowed)
+		overlays += image('icons/mob/hostiles/weeds.dmi', "weedburrowed")
 
 /obj/effect/alien/weeds/ex_act(severity)
 	if(indestructible)
