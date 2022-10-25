@@ -33,7 +33,7 @@
 /datum/action/xeno_action/activable/burrowed_spikes
 	name = "Burrowed Spikes"
 	ability_name = "burrowed spikes"
-	action_icon_state = "rav_scissor_cut"
+	action_icon_state = "burrowed_spikes"
 	macro_path = /datum/action/xeno_action/verb/verb_burrowed_spikes
 	action_type = XENO_ACTION_CLICK
 	ability_primacy = XENO_PRIMARY_ACTION_1
@@ -47,7 +47,7 @@
 /datum/action/xeno_action/activable/sunken_tail
 	name = "Sunken Tail"
 	ability_name = "sunken tail"
-	action_icon_state = "rav_scissor_cut"
+	action_icon_state = "sunken_tail"
 	macro_path = /datum/action/xeno_action/verb/verb_sunken_tail
 	action_type = XENO_ACTION_CLICK
 	ability_primacy = XENO_PRIMARY_ACTION_2
@@ -64,7 +64,7 @@
 /datum/action/xeno_action/activable/reinforcing_burrow
 	name = "Reinforcing Burrow"
 	ability_name = "reinforcing burrow"
-	action_icon_state = "rav_scissor_cut"
+	action_icon_state = "reinforcing_burrow"
 	macro_path = /datum/action/xeno_action/verb/verb_reinforcing_burrow
 	action_type = XENO_ACTION_CLICK
 	ability_primacy = XENO_PRIMARY_ACTION_4
