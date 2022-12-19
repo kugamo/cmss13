@@ -78,7 +78,7 @@
 		var/powerfactor_value = round( damage * 0.05 ,1)
 		powerfactor_value = min(powerfactor_value,20)
 		if(powerfactor_value > 0 && small_explosives_stun)
-			KnockOut(powerfactor_value/5)
+			KnockDown(powerfactor_value/5)
 			if(mob_size < MOB_SIZE_BIG)
 				Slow(powerfactor_value)
 				Superslow(powerfactor_value/2)
@@ -87,7 +87,7 @@
 			explosion_throw(severity, direction)
 		else if(powerfactor_value > 10)
 			powerfactor_value /= 5
-			KnockOut(powerfactor_value/5)
+			KnockDown(powerfactor_value/5)
 			if(mob_size < MOB_SIZE_BIG)
 				Slow(powerfactor_value)
 				Superslow(powerfactor_value/2)
@@ -291,3 +291,23 @@
 
 	var/list/overlap = iff_tag.faction_groups & access_to_check
 	return length(overlap)
+
+/mob/living/carbon/Xenomorph/handle_flamer_fire(obj/flamer_fire/fire, var/damage, var/delta_time)
+	. = ..()
+	switch(fire.fire_variant)
+		if(FIRE_VARIANT_TYPE_B)
+			if(!armor_deflection_debuff) //Only adds another reset timer if the debuff is currently on 0, so at the start or after a reset has recently occured.
+				reset_xeno_armor_debuff_after_time(src, delta_time*10)
+			fire.type_b_debuff_xeno_armor(src) //Always reapplies debuff each time to minimize gap.
+
+/mob/living/carbon/Xenomorph/handle_flamer_fire_crossed(obj/flamer_fire/fire)
+	. = ..()
+	switch(fire.fire_variant)
+		if(FIRE_VARIANT_TYPE_B) //Armor Shredding Greenfire
+			if(!armor_deflection_debuff) //Only applies the xeno armor shred reset when the debuff isn't present or was recently removed.
+				reset_xeno_armor_debuff_after_time(src, 20)
+			var/resist_modifier = fire.type_b_debuff_xeno_armor(src)
+			fire.set_on_fire(src) //Deals an extra proc of fire when you're crossing it. 30 damage per tile crossed, plus 15 per Process().
+			next_move_slowdown = next_move_slowdown + (SLOWDOWN_AMT_GREENFIRE * resist_modifier)
+			if(resist_modifier > 0)
+				to_chat(src, SPAN_DANGER("You feel pieces of your exoskeleton fusing with the viscous fluid below and tearing off as you struggle to move through the flames!"))

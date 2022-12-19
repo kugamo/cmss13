@@ -1,4 +1,4 @@
-////SS13 DONATOR CUSTOM ITEM STORAGE ZONE OF MAGICAL HAPPINESS APOPHIS - LAST UPDATE - 14JUN2016
+// SS13 DONATOR CUSTOM ITEM STORAGE ZONE OF MAGICAL HAPPINESS APOPHIS - LAST UPDATE - 14JUN2016
 
 //  EXO-SUITS/ARMORS COSMETICS  ////////////////////////////////////////////////
 
@@ -1309,6 +1309,8 @@
 	desc = "Black gloves, favored by Special Operations teams.  DONOR ITEM"
 	name = "Black Ops Black Gloves"
 
+/obj/item/storage/backpack/marine/fluff
+	xeno_types = null
 
 /obj/item/storage/backpack/marine/fluff/Sado
 	name = "Tanya's Backpack"

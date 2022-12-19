@@ -221,6 +221,18 @@
 	prefs.save_preferences()
 	toggle_fullscreen(prefs.toggle_prefs & TOGGLE_FULLSCREEN)
 
+/client/verb/toggle_ambient_occlusion()
+	set name = "Toggle Ambient Occlusion"
+	set category = "Preferences"
+	set desc = "Toggles whether the game will have ambient occlusion on."
+
+	prefs.toggle_prefs ^= TOGGLE_AMBIENT_OCCLUSION
+	prefs.save_preferences()
+	var/atom/movable/screen/plane_master/game_world/plane_master = locate() in src.screen
+	if (!plane_master)
+		return
+	plane_master.backdrop(src.mob)
+
 /client/verb/toggle_member_publicity()
 	set name = "Toggle Membership Publicity"
 	set category = "Preferences"
@@ -257,7 +269,11 @@
 		"<a href='?src=\ref[src];action=proccall;procpath=/client/proc/toggle_automatic_punctuation'>Toggle Automatic Punctuation</a><br>",
 		"<a href='?src=\ref[src];action=proccall;procpath=/client/proc/toggle_middle_mouse_click'>Toggle Middle Mouse Ability Activation</a><br>",
 		"<a href='?src=\ref[src];action=proccall;procpath=/client/proc/toggle_clickdrag_override'>Toggle Combat Click-Drag Override</a><br>",
-		"<a href='?src=\ref[src];action=proccall;procpath=/client/proc/toggle_dualwield'>Toggle Alternate-Fire Dual Wielding</a><br>"
+		"<a href='?src=\ref[src];action=proccall;procpath=/client/proc/toggle_dualwield'>Toggle Alternate-Fire Dual Wielding</a><br>",
+		"<a href='?src=\ref[src];action=proccall;procpath=/client/proc/toggle_middle_mouse_swap_hands'>Toggle Middle Mouse Swapping Hands</a><br>",
+		"<a href='?src=\ref[src];action=proccall;procpath=/client/proc/toggle_vend_item_to_hand'>Toggle Vendors Vending to Hands</a><br>",
+		"<a href='?src=\ref[src];action=proccall;procpath=/client/proc/switch_item_animations'>Toggle Item Animations</a><br>",
+		"<a href='?src=\ref[src];action=proccall;procpath=/client/proc/toggle_admin_sound_types'>Toggle Admin Sound Types</a><br>"
 	)
 
 	var/dat = ""
@@ -352,6 +368,50 @@
 	prefs.toggle_prefs ^= TOGGLE_MIDDLE_MOUSE_SWAP_HANDS
 	to_chat(src, SPAN_BOLDNOTICE("Middle Click [(prefs.toggle_prefs & TOGGLE_MIDDLE_MOUSE_SWAP_HANDS) ? "will" : "will no longer"] swap your hands."))
 	prefs.save_preferences()
+
+/client/proc/toggle_vend_item_to_hand() //Toggle whether vendors automatically vend to your hands
+	prefs.toggle_prefs ^= TOGGLE_VEND_ITEM_TO_HAND
+	if(prefs.toggle_prefs & TOGGLE_VEND_ITEM_TO_HAND)
+		to_chat(src, SPAN_BOLDNOTICE("Most vendors will now automatically vend directly into your hands."))
+	else
+		to_chat(src, SPAN_BOLDNOTICE("Vendors will no longer vend into your hands."))
+	prefs.save_preferences()
+
+/client/proc/switch_item_animations() //Switches tg-style item animations on, not-on-same-tile, and off
+	switch(prefs.item_animation_pref_level)
+		if(SHOW_ITEM_ANIMATIONS_NONE)
+			prefs.item_animation_pref_level = SHOW_ITEM_ANIMATIONS_HALF
+			to_chat(src, SPAN_BOLDNOTICE("You will now see all item animations, except for those that occur on their own tile."))
+			prefs.save_preferences()
+			return "On"
+
+		if(SHOW_ITEM_ANIMATIONS_HALF)
+			prefs.item_animation_pref_level = SHOW_ITEM_ANIMATIONS_ALL
+			to_chat(src, SPAN_BOLDNOTICE("You will now see all item animations."))
+			prefs.save_preferences()
+			return "Not Same Tile"
+
+		if(SHOW_ITEM_ANIMATIONS_ALL)
+			prefs.item_animation_pref_level = SHOW_ITEM_ANIMATIONS_NONE
+			to_chat(src, SPAN_BOLDNOTICE("You will no longer see item animations."))
+			prefs.save_preferences()
+			return "Off"
+
+/client/proc/toggle_admin_sound_types()
+	//Entirely for code readability.
+	var/meme_toggle = prefs.toggles_sound & SOUND_ADMIN_MEME ? TRUE : FALSE
+	var/atmospheric_toggle = prefs.toggles_sound & SOUND_ADMIN_ATMOSPHERIC ? TRUE : FALSE
+	var/result = tgui_alert(src, "Which sound type do you want to toggle? Meme sounds are currently [meme_toggle ? "enabled" : "disabled"], Atmospheric sounds are currently [atmospheric_toggle ? "enabled" : "disabled"].", "Toggle MIDI/Internet sound type to play", list("Meme", "Atmospheric"))
+	if(result == "Meme")
+		prefs.toggles_sound ^= SOUND_ADMIN_MEME
+		//Update the variables so it doesn't output the outdated toggle.
+		meme_toggle = prefs.toggles_sound & SOUND_ADMIN_MEME ? TRUE : FALSE
+		to_chat(src, SPAN_NOTICE("You will [meme_toggle ? "now" : "no longer"] hear meme admin sounds."))
+	if(result == "Atmospheric")
+		prefs.toggles_sound ^= SOUND_ADMIN_ATMOSPHERIC
+		//Ditto.
+		atmospheric_toggle = prefs.toggles_sound & SOUND_ADMIN_ATMOSPHERIC ? TRUE : FALSE
+		to_chat(src, SPAN_NOTICE("You will [atmospheric_toggle ? "now" : "no longer"] hear atmospheric admin sounds."))
 
 //------------ GHOST PREFERENCES ---------------------------------
 

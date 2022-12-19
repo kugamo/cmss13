@@ -14,9 +14,6 @@
 	var/chemical = ""
 	var/dispensing = TRUE
 
-/obj/structure/reagent_dispensers/attackby(obj/item/W as obj, mob/user as mob)
-	return
-
 /obj/structure/reagent_dispensers/Initialize(mapload, reagent_amount = 1000)
 	. = ..()
 	create_reagents(reagent_amount)
@@ -62,7 +59,7 @@
 
 /obj/structure/reagent_dispensers/proc/healthcheck()
 	if(health <= 0)
-		qdel(src)
+		deconstruct(FALSE)
 
 /obj/structure/reagent_dispensers/bullet_act(var/obj/item/projectile/Proj)
 	health -= Proj.damage
@@ -106,16 +103,14 @@
 	switch(severity)
 		if(0 to EXPLOSION_THRESHOLD_LOW)
 			if(prob(5))
-				new /obj/effect/particle_effect/water(src.loc)
-				qdel(src)
+				deconstruct(FALSE)
 				return
 		if(EXPLOSION_THRESHOLD_LOW to EXPLOSION_THRESHOLD_MEDIUM)
 			if(prob(50))
-				new /obj/effect/particle_effect/water(src.loc)
-				qdel(src)
+				deconstruct(FALSE)
 				return
 		if(EXPLOSION_THRESHOLD_MEDIUM to INFINITY)
-			qdel(src)
+			deconstruct(FALSE)
 			return
 		else
 	return
@@ -127,6 +122,11 @@
 	var/N = tgui_input_list(usr, "Amount per transfer from this:","[src]", possible_transfer_amounts)
 	if(N)
 		amount_per_transfer_from_this = N
+
+/obj/structure/reagent_dispensers/attackby(obj/item/hit_item, mob/living/user)
+	if(istype(hit_item, /obj/item/reagent_container))
+		return
+	..()
 
 //Dispensers
 /obj/structure/reagent_dispensers/watertank
@@ -318,7 +318,7 @@
 /obj/structure/reagent_dispensers/fueltank/proc/explode(var/force)
 	reagents.source_mob = source_mob
 	if(reagents.handle_volatiles() || force)
-		qdel(src)
+		deconstruct(FALSE)
 		return
 
 	exploding = FALSE
@@ -393,6 +393,7 @@
 	desc = "A reagent tank, typically used to store large quantities of chemicals."
 
 	chemical = null
+	dispensing = FALSE //Empty fuel tanks start by accepting chemicals by default. Can't dispense nothing!
 	icon_state = "tank_normal"
 
 /obj/structure/reagent_dispensers/fueltank/custom/Initialize(mapload, volume)
@@ -425,6 +426,7 @@
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "peppertank"
 	anchored = 1
+	wrenchable =  FALSE
 	density = 0
 	amount_per_transfer_from_this = 45
 	chemical = "condensedcapsaicin"
@@ -463,6 +465,7 @@
 	icon_state = "virusfoodtank"
 	amount_per_transfer_from_this = 10
 	anchored = 1
+	wrenchable = FALSE
 	density = 0
 	chemical = "virusfood"
 

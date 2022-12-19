@@ -50,6 +50,7 @@
 #define COUGHING		4
 #define TOURETTES		8
 #define NERVOUS			16
+#define OPIATE_RECEPTOR_DEFICIENCY 32
 //=================================================
 
 //sdisabilities
@@ -150,7 +151,11 @@
 
 //=================================================
 
-///////////////////INTERNAL ORGANS DEFINES///////////////////
+/*   MOVE DEFINES   */
+#define MOVE_INTENT_WALK        1
+#define MOVE_INTENT_RUN         2
+
+/*   INTERNAL ORGAN DEFINES   */
 #define ORGAN_ASSISTED	1
 #define ORGAN_ROBOT		2
 
@@ -177,6 +182,7 @@
 #define SURGERY_MODE_ON			(1<<3)  // Mob on surgery mode, will attempt surgery when using relevant items on harm/disarm intent.
 #define MUTINEER				(1<<4)  // Part of the Mutiny Gang
 #define GIVING					(1<<5)	// Is currently trying to give an item to someone
+#define NOBIOSCAN				(1<<6)
 
 //=================================================
 
@@ -386,11 +392,22 @@ var/list/default_onmob_icons = list(
 		WEAR_ACCESSORIES = 'icons/mob/humans/onmob/ties.dmi'
 		)
 
+var/list/default_xeno_onmob_icons = list(
+		/mob/living/carbon/Xenomorph/Runner = 'icons/mob/xenos/onmob/runner.dmi',
+		/mob/living/carbon/Xenomorph/Praetorian = 'icons/mob/xenos/onmob/praetorian.dmi',
+		/mob/living/carbon/Xenomorph/Drone = 'icons/mob/xenos/onmob/drone.dmi',
+		/mob/living/carbon/Xenomorph/Warrior = 'icons/mob/xenos/onmob/warrior.dmi',
+		/mob/living/carbon/Xenomorph/Defender = 'icons/mob/xenos/onmob/defender.dmi',
+		/mob/living/carbon/Xenomorph/Sentinel = 'icons/mob/xenos/onmob/sentinel.dmi',
+		/mob/living/carbon/Xenomorph/Spitter = 'icons/mob/xenos/onmob/spitter.dmi'
+		)
+
 // species names
 #define SPECIES_HUMAN "Human"
 #define SPECIES_YAUTJA "Yautja"
 #define SPECIES_SYNTHETIC "Synthetic"
 #define SPECIES_MONKEY "Monkey"
+#define SPECIES_ZOMBIE "Zombie"
 
 #define ALL_LIMBS list("head","chest","groin","l_leg","l_foot","r_leg","r_foot","l_arm","l_hand","r_arm","r_hand")
 #define MOVEMENT_LIMBS list("l_leg", "l_foot", "r_leg", "r_foot")

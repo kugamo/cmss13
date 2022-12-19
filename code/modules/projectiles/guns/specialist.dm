@@ -90,6 +90,8 @@
 		f_aiming_time *= 0.5
 
 	var/image/I = image(icon = 'icons/effects/Targeted.dmi', icon_state = "locking-sniper", dir = get_cardinal_dir(M, H))
+	I.pixel_x = -M.pixel_x + M.base_pixel_x
+	I.pixel_y = (M.icon_size - world.icon_size) * 0.5 - M.pixel_y + M.base_pixel_y
 	M.overlays += I
 	if(H.client)
 		playsound_client(H.client, 'sound/weapons/TargetOn.ogg', H, 50)
@@ -105,8 +107,8 @@
 		return
 
 	var/obj/item/projectile/P = sniper_rifle.in_chamber
-	P.homing_target = M
-	P.projectile_override_flags |= AMMO_HOMING
+	P.projectile_flags |= PROJECTILE_BULLSEYE
+	P.AddComponent(/datum/component/homing_projectile, M, H)
 	sniper_rifle.Fire(M, H)
 
 /datum/action/item_action/specialist/aimed_shot/proc/check_can_use(var/mob/M, var/cover_lose_focus)
@@ -330,7 +332,7 @@
 		if(PMC_sniper.lying == 0 && !istype(PMC_sniper.wear_suit,/obj/item/clothing/suit/storage/marine/smartgunner/veteran/PMC) && !istype(PMC_sniper.wear_suit,/obj/item/clothing/suit/storage/marine/veteran))
 			PMC_sniper.visible_message(SPAN_WARNING("[PMC_sniper] is blown backwards from the recoil of the [src.name]!"),SPAN_HIGHDANGER("You are knocked prone by the blowback!"))
 			step(PMC_sniper,turn(PMC_sniper.dir,180))
-			PMC_sniper.KnockDown(5)
+			PMC_sniper.apply_effect(5, WEAKEN)
 
 //SVD //Based on the actual Dragunov sniper rifle.
 
@@ -634,7 +636,7 @@ obj/item/weapon/gun/launcher/grenade/update_icon()
 			to_chat(user, SPAN_WARNING("The [name] is empty."))
 			return FALSE
 		var/obj/item/explosive/grenade/G = cylinder.contents[1]
-		if(G.antigrief_protection && user.faction == FACTION_MARINE && explosive_grief_check(G))
+		if(G.antigrief_protection && user.faction == FACTION_MARINE && explosive_antigrief_check(G, user))
 			to_chat(user, SPAN_WARNING("\The [name]'s safe-area accident inhibitor prevents you from firing!"))
 			msg_admin_niche("[key_name(user)] attempted to prime \a [G.name] in [get_area(src)] (<A HREF='?_src_=admin_holder;[HrefToken(forceGlobal = TRUE)];adminplayerobservecoodjump=1;X=[src.loc.x];Y=[src.loc.y];Z=[src.loc.z]'>JMP</a>)")
 			return FALSE
@@ -900,15 +902,10 @@ obj/item/weapon/gun/launcher/grenade/update_icon()
 /obj/item/weapon/gun/launcher/rocket/able_to_fire(mob/living/user)
 	. = ..()
 	if (. && istype(user)) //Let's check all that other stuff first.
-		/*var/turf/current_turf = get_turf(user)
-		if (is_mainship_level(current_turf.z) || is_loworbit_level(current_turf.z)) //Can't fire on the Almayer, bub.
-			click_empty(user)
-			to_chat(user, SPAN_WARNING("You can't fire that here!"))
-			return 0*/
 		if(skill_locked && !skillcheck(user, SKILL_SPEC_WEAPONS, SKILL_SPEC_ALL) && user.skills.get_skill_level(SKILL_SPEC_WEAPONS) != SKILL_SPEC_ROCKET)
 			to_chat(user, SPAN_WARNING("You don't seem to know how to use \the [src]..."))
 			return 0
-		if(user.faction == FACTION_MARINE && explosive_grief_check(src))
+		if(user.faction == FACTION_MARINE && explosive_antigrief_check(src, user))
 			to_chat(user, SPAN_WARNING("\The [name]'s safe-area accident inhibitor prevents you from firing!"))
 			msg_admin_niche("[key_name(user)] attempted to fire \a [name] in [get_area(src)] (<A HREF='?_src_=admin_holder;[HrefToken(forceGlobal = TRUE)];adminplayerobservecoodjump=1;X=[src.loc.x];Y=[src.loc.y];Z=[src.loc.z]'>JMP</a>)")
 			return FALSE
@@ -1018,18 +1015,24 @@ obj/item/weapon/gun/launcher/grenade/update_icon()
 
 //Adding in the rocket backblast. The tile behind the specialist gets blasted hard enough to down and slightly wound anyone
 /obj/item/weapon/gun/launcher/rocket/apply_bullet_effects(obj/item/projectile/projectile_to_fire, mob/user, i = 1, reflex = 0)
+	. = ..()
+	if(!HAS_TRAIT(user, TRAIT_EAR_PROTECTION) && ishuman(user))
+		var/mob/living/carbon/human/huser = user
+		to_chat(user, SPAN_WARNING("Augh!! \The [src]'s launch blast resonates extremely loudly in your ears! You probably should have worn some sort of ear protection..."))
+		huser.apply_effect(6, STUTTER)
+		huser.emote("pain")
+		huser.SetEarDeafness(max(user.ear_deaf,10))
 
 	var/backblast_loc = get_turf(get_step(user.loc, turn(user.dir, 180)))
 	smoke.set_up(1, 0, backblast_loc, turn(user.dir, 180))
 	smoke.start()
-	playsound(src, 'sound/weapons/gun_rocketlauncher.ogg', 100, 1, 7)
+	playsound(src, 'sound/weapons/gun_rocketlauncher.ogg', 100, TRUE, 10)
 	for(var/mob/living/carbon/C in backblast_loc)
-		if(!C.lying) //Have to be standing up to get the fun stuff
+		if(!C.lying && !HAS_TRAIT(C, TRAIT_EAR_PROTECTION)) //Have to be standing up to get the fun stuff
 			C.apply_damage(15, BRUTE) //The shockwave hurts, quite a bit. It can knock unarmored targets unconscious in real life
-			C.Stun(4) //For good measure
+			C.apply_effect(4, STUN) //For good measure
+			C.apply_effect(6, STUTTER)
 			C.emote("pain")
-
-		..()
 
 //-------------------------------------------------------
 //M5 RPG'S MEAN FUCKING COUSIN

@@ -212,6 +212,7 @@
 			if("observer")			transformed = M.change_mob_type( /mob/dead/observer , null, null, delmob )
 
 			if("larva")				transformed = M.change_mob_type( /mob/living/carbon/Xenomorph/Larva , null, null, delmob )
+			if("facehugger")		transformed = M.change_mob_type( /mob/living/carbon/Xenomorph/Facehugger , null, null, delmob )
 			if("defender")			transformed = M.change_mob_type( /mob/living/carbon/Xenomorph/Defender, null, null, delmob )
 			if("warrior")			transformed = M.change_mob_type( /mob/living/carbon/Xenomorph/Warrior, null, null, delmob )
 			if("runner")			transformed = M.change_mob_type( /mob/living/carbon/Xenomorph/Runner , null, null, delmob )
@@ -581,7 +582,7 @@
 			to_chat(usr, SPAN_WARNING("Not a xeno"))
 			return
 
-		if(alert("Are you sure you want to reset xeno name for [X.ckey]?", , "Yes", "No") == "No")
+		if(alert("Are you sure you want to reset xeno name for [X.ckey]?", , "Yes", "No") != "Yes")
 			return
 
 		if(!X.ckey)
@@ -608,7 +609,7 @@
 		var/mob/M = locate(href_list["xenobanname"])
 
 		if(ismob(M) && X.client && X.client.xeno_name_ban)
-			if(alert("Are you sure you want to UNBAN [X.ckey] and let them use xeno name?", ,"Yes", "No") == "No")
+			if(alert("Are you sure you want to UNBAN [X.ckey] and let them use xeno name?", ,"Yes", "No") != "Yes")
 				return
 			X.client.xeno_name_ban = FALSE
 			X.client.prefs.xeno_name_ban = FALSE
@@ -625,7 +626,7 @@
 			to_chat(usr, SPAN_WARNING("Not a xeno"))
 			return
 
-		if(alert("Are you sure you want to BAN [X.ckey] from ever using any xeno name?", , "Yes", "No") == "No")
+		if(alert("Are you sure you want to BAN [X.ckey] from ever using any xeno name?", , "Yes", "No") != "Yes")
 			return
 
 		if(!X.ckey)
@@ -900,7 +901,7 @@
 		for(var/obj/item/I in M)
 			M.drop_inv_item_on_ground(I)
 
-		M.KnockOut(5)
+		M.apply_effect(5, PARALYZE)
 		sleep(5)
 		M.forceMove(get_turf(pick(GLOB.thunderdome_one)))
 		spawn(50)
@@ -924,7 +925,7 @@
 		for(var/obj/item/I in M)
 			M.drop_inv_item_on_ground(I)
 
-		M.KnockOut(5)
+		M.apply_effect(5, PARALYZE)
 		sleep(5)
 		M.forceMove(get_turf(pick(GLOB.thunderdome_two)))
 		spawn(50)
@@ -945,7 +946,7 @@
 			to_chat(usr, "This cannot be used on instances of type /mob/living/silicon/ai")
 			return
 
-		M.KnockOut(5)
+		M.apply_effect(5, PARALYZE)
 		sleep(5)
 		M.forceMove(get_turf(pick(GLOB.thunderdome_admin)))
 		spawn(50)
@@ -973,7 +974,7 @@
 			var/mob/living/carbon/human/observer = M
 			observer.equip_to_slot_or_del(new /obj/item/clothing/under/suit_jacket(observer), WEAR_BODY)
 			observer.equip_to_slot_or_del(new /obj/item/clothing/shoes/black(observer), WEAR_FEET)
-		M.KnockOut(5)
+		M.apply_effect(5, PARALYZE)
 		sleep(5)
 		M.forceMove(get_turf(pick(GLOB.thunderdome_observer)))
 		spawn(50)
@@ -1025,7 +1026,7 @@
 	else if(href_list["makeyautja"])
 		if(!check_rights(R_SPAWN))	return
 
-		if(alert("Are you sure you want to make this person into a yautja? It will delete their old character.","Make Yautja","Yes","No") == "No")
+		if(alert("Are you sure you want to make this person into a yautja? It will delete their old character.","Make Yautja","Yes","No") != "Yes")
 			return
 
 		var/mob/H = locate(href_list["makeyautja"])
@@ -1259,6 +1260,10 @@
 		to_chat(src.owner, "You sent [input] to [H] via a secure channel.")
 		log_admin("[src.owner] replied to [key_name(H)]'s Syndicate message with the message [input].")
 		to_chat(H, "You hear something crackle in your headset for a moment before a voice speaks.  \"Please stand by for a message from your benefactor.  Message as follows, agent. <b>\"[input]\"</b>  Message ends.\"")
+
+	else if(href_list["UpdateFax"])
+		var/obj/structure/machinery/faxmachine/fax = locate(href_list["originfax"])
+		fax.update_departments()
 
 	else if(href_list["USCMFaxReply"])
 		var/mob/living/carbon/human/H = locate(href_list["USCMFaxReply"])

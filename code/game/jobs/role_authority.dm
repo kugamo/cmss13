@@ -253,7 +253,11 @@ var/global/players_preassigned = 0
 	if(istype(SJ))
 		SJ.set_spawn_positions(players_preassigned)
 
-	if(prob(SSticker.mode.pred_round_chance))
+	var/datum/job/CO_surv_job = temp_roles_for_mode[JOB_CO_SURVIVOR]
+	if(istype(CO_surv_job))
+		CO_surv_job.set_spawn_positions(players_preassigned)
+
+	if(SSnightmare.get_scenario_value("predator_round"))
 		SSticker.mode.flags_round_type |= MODE_PREDATOR
 		// Set predators starting amount based on marines assigned
 		var/datum/job/PJ = temp_roles_for_mode[JOB_PREDATOR]
@@ -500,26 +504,7 @@ var/global/players_preassigned = 0
 	if(!ishuman(M))
 		return
 
-	var/mob/living/carbon/H = M
-
-	H.job = J.title //TODO Why is this a mob variable at all?
-
-	var/datum/money_account/A
-
-	//Give them an account in the database.
-	if(!(J.flags_startup_parameters & ROLE_NO_ACCOUNT))
-		A = create_account(H.real_name, rand(50,500)*10, null)
-		if(H.mind)
-			var/remembered_info = ""
-			remembered_info += "<b>Your account number is:</b> #[A.account_number]<br>"
-			remembered_info += "<b>Your account pin is:</b> [A.remote_access_pin]<br>"
-			remembered_info += "<b>Your account funds are:</b> $[A.money]<br>"
-
-			if(A.transaction_log.len)
-				var/datum/transaction/T = A.transaction_log[1]
-				remembered_info += "<b>Your account was created:</b> [T.time], [T.date] at [T.source_terminal]<br>"
-			H.mind.store_memory(remembered_info)
-			H.mind.initial_account = A
+	var/mob/living/carbon/human/H = M
 
 	var/job_whitelist = J.title
 	var/whitelist_status = J.get_whitelist_status(roles_whitelist, H.client)
@@ -527,13 +512,17 @@ var/global/players_preassigned = 0
 	if(whitelist_status)
 		job_whitelist = "[J.title][whitelist_status]"
 
+	H.job = J.title //TODO Why is this a mob variable at all?
+
 	if(J.gear_preset_whitelist[job_whitelist])
 		arm_equipment(H, J.gear_preset_whitelist[job_whitelist], FALSE, TRUE)
-		J.announce_entry_message(H, A, whitelist_status) //Tell them their spawn info.
+		var/generated_account = J.generate_money_account(H)
+		J.announce_entry_message(H, generated_account, whitelist_status) //Tell them their spawn info.
 		J.generate_entry_conditions(H, whitelist_status) //Do any other thing that relates to their spawn.
 	else
 		arm_equipment(H, J.gear_preset, FALSE, TRUE) //After we move them, we want to equip anything else they should have.
-		J.announce_entry_message(H, A) //Tell them their spawn info.
+		var/generated_account = J.generate_money_account(H)
+		J.announce_entry_message(H, generated_account) //Tell them their spawn info.
 		J.generate_entry_conditions(H) //Do any other thing that relates to their spawn.
 
 	if(J.flags_startup_parameters & ROLE_ADD_TO_SQUAD) //Are we a muhreen? Randomize our squad. This should go AFTER IDs. //TODO Robust this later.
@@ -762,6 +751,8 @@ var/global/players_preassigned = 0
 			M = /mob/living/carbon/Xenomorph/Larva
 		if(XENO_CASTE_PREDALIEN_LARVA)
 			M = /mob/living/carbon/Xenomorph/Larva/predalien
+		if(XENO_CASTE_FACEHUGGER)
+			M = /mob/living/carbon/Xenomorph/Facehugger
 		if(XENO_CASTE_RUNNER)
 			M = /mob/living/carbon/Xenomorph/Runner
 		if(XENO_CASTE_DRONE)
@@ -826,11 +817,9 @@ var/global/players_preassigned = 0
 			old_squad.unassign_fireteam(transfer_marine, TRUE)	//reset fireteam assignment
 		old_squad.remove_marine_from_squad(transfer_marine, ID)
 		old_squad.update_free_mar()
-		old_squad.update_squad_ui()
 	. = new_squad.put_marine_in_squad(transfer_marine, ID)
 	if(.)
 		new_squad.update_free_mar()
-		new_squad.update_squad_ui()
 
 		var/marine_ref = WEAKREF(transfer_marine)
 		for(var/datum/data/record/t in GLOB.data_core.general) //we update the crew manifest
@@ -839,3 +828,26 @@ var/global/players_preassigned = 0
 				break
 
 		transfer_marine.hud_set_squad()
+
+// returns TRUE if transfer_marine's role is at max capacity in the new squad
+/datum/authority/branch/role/proc/check_squad_capacity(var/mob/living/carbon/human/transfer_marine, var/datum/squad/new_squad)
+	switch(transfer_marine.job)
+		if(JOB_SQUAD_LEADER)
+			if(new_squad.num_leaders >= new_squad.max_leaders)
+				return TRUE
+		if(JOB_SQUAD_SPECIALIST)
+			if(new_squad.num_specialists >= new_squad.max_specialists)
+				return TRUE
+		if(JOB_SQUAD_ENGI)
+			if(new_squad.num_engineers >= new_squad.max_engineers)
+				return TRUE
+		if(JOB_SQUAD_MEDIC)
+			if(new_squad.num_medics >= new_squad.max_medics)
+				return TRUE
+		if(JOB_SQUAD_SMARTGUN)
+			if(new_squad.num_smartgun >= new_squad.max_smartgun)
+				return TRUE
+		if(JOB_SQUAD_RTO)
+			if(new_squad.num_rto >= new_squad.max_rto)
+				return TRUE
+	return FALSE

@@ -92,7 +92,7 @@
 
 /mob/living/carbon/human/proc/get_ghost(var/check_client = TRUE, var/check_can_reenter = TRUE)
 	if(client)
-		return FALSE
+		return null
 
 	for(var/mob/dead/observer/G in GLOB.observer_list)
 		if(G.mind && G.mind.original == src)
@@ -187,7 +187,7 @@
 
 	var/datum/internal_organ/heart/heart = H.internal_organs_by_name["heart"]
 	if(heart && prob(25))
-		heart.damage += heart_damage_to_deal //Allow the defibrilator to possibly worsen heart damage. Still rare enough to just be the "clone damage" of the defib
+		heart.damage += heart_damage_to_deal //Allow the defibrillator to possibly worsen heart damage. Still rare enough to just be the "clone damage" of the defib
 
 	if(!H.is_revivable())
 		playsound(get_turf(src), 'sound/items/defib_failed.ogg', 25, 0)

@@ -17,7 +17,6 @@
 
 	evolution_allowed = FALSE
 	deevolves_to = list(XENO_CASTE_DRONE)
-	eggs_max = 5
 	throwspeed = SPEED_AVERAGE
 	can_hold_facehuggers = 1
 	can_hold_eggs = CAN_HOLD_ONE_HAND
@@ -42,6 +41,7 @@
 	name = XENO_CASTE_CARRIER
 	desc = "A strange-looking alien creature. It carries a number of scuttling jointed crablike creatures."
 	icon_size = 64
+	icon_xeno = 'icons/mob/xenos/carrier.dmi'
 	icon_state = "Carrier Walking"
 	plasma_types = list(PLASMA_PURPLE)
 
@@ -51,8 +51,6 @@
 	tier = 2
 	pixel_x = -16 //Needed for 2x2
 	old_x = -16
-
-	var/list/hugger_image_list = list()
 
 	base_actions = list(
 		/datum/action/xeno_action/onclick/xeno_resting,
@@ -70,63 +68,75 @@
 
 	icon_xenonid = 'icons/mob/xenonids/carrier.dmi'
 
+	var/list/hugger_image_index = list()
+	var/mutable_appearance/hugger_overlays_icon
+
 /mob/living/carbon/Xenomorph/Carrier/update_icons()
 	. = ..()
 
-	overlays.Cut()
-	var/amount_o_huggers = 0
-	if(huggers_max) //no dividing by zero, sorry
-		amount_o_huggers = round(( huggers_cur / huggers_max ) * 100)
-	switch(amount_o_huggers)
-		if(0)
-			hugger_image_list.Cut()
-			return
-		if(1 to 25)
-			update_icon_maths(1)
-		if(26 to 50)
-			update_icon_maths(2)
-		if(51 to 75)
-			update_icon_maths(3)
-		if(76 to 100)
-			update_icon_maths(4)
-	for(var/i in hugger_image_list)
+	update_hugger_overlays()
+
+/mob/living/carbon/Xenomorph/Carrier/proc/update_hugger_overlays()
+	if(!hugger_overlays_icon)
+		return
+
+	overlays -= hugger_overlays_icon
+	hugger_overlays_icon.overlays.Cut()
+
+	if(!huggers_cur)
+		hugger_image_index.Cut()
+		return
+
+	update_icon_maths(round(( huggers_cur / huggers_max ) * 3.999) + 1)
+
+	for(var/i in hugger_image_index)
 		if(stat == DEAD)
-			overlays += image(icon, "clinger_[i] Knocked Down")
+			hugger_overlays_icon.overlays += icon(icon, "clinger_[i] Knocked Down")
 		else if(lying)
 			if((resting || sleeping) && (!knocked_down && !knocked_out && health > 0))
-				overlays += image(icon, "clinger_[i] Sleeping")
+				hugger_overlays_icon.overlays += icon(icon, "clinger_[i] Sleeping")
 			else
-				overlays += image(icon, "clinger_[i] Knocked Down")
+				hugger_overlays_icon.overlays +=icon(icon, "clinger_[i] Knocked Down")
 		else
-			overlays += image(icon, "clinger_[i]")
+			hugger_overlays_icon.overlays +=icon(icon, "clinger_[i]")
+
+	overlays += hugger_overlays_icon
 
 /mob/living/carbon/Xenomorph/Carrier/proc/update_icon_maths(number)
 	var/funny_list = list(1,2,3,4)
-	if(length(hugger_image_list) != number)
-		if(length(hugger_image_list) > number)
-			while(length(hugger_image_list) != number)
-				hugger_image_list -= hugger_image_list[length(hugger_image_list)]
+	if(length(hugger_image_index) != number)
+		if(length(hugger_image_index) > number)
+			while(length(hugger_image_index) != number)
+				hugger_image_index -= hugger_image_index[length(hugger_image_index)]
 		else
-			while(length(hugger_image_list) != number)
-				for(var/i in hugger_image_list)
-					funny_list -= i
-				hugger_image_list += funny_list[rand(1,length(funny_list))]
-
+			while(length(hugger_image_index) != number)
+				for(var/i in hugger_image_index)
+					if(locate(i) in funny_list)
+						funny_list -= i
+				hugger_image_index += funny_list[rand(1,length(funny_list))]
 
 /mob/living/carbon/Xenomorph/Carrier/Initialize(mapload, mob/living/carbon/Xenomorph/oldXeno, h_number)
-	icon_xeno = get_icon_from_source(CONFIG_GET(string/alien_carrier))
 	. = ..()
+	hugger_overlays_icon = mutable_appearance('icons/mob/xenos/overlay_effects64x64.dmi',"empty")
 
 /mob/living/carbon/Xenomorph/Carrier/death(var/cause, var/gibbed)
 	. = ..(cause, gibbed)
 	if(.)
 		var/chance = 75
 
+		if (huggers_cur)
+			//Hugger explosion, like an egg morpher
+			var/obj/item/clothing/mask/facehugger/hugger
+			visible_message(SPAN_XENOWARNING("The chittering mass of tiny aliens is trying to escape [src]!"))
+			for(var/i in 1 to huggers_cur)
+				if(prob(chance))
+					hugger = new(loc, hivenumber)
+					step_away(hugger, src, 1)
+
 		while (eggs_cur > 0)
 			if(prob(chance))
 				new /obj/item/xeno_egg(loc, hivenumber)
 				eggs_cur--
-
 
 /mob/living/carbon/Xenomorph/Carrier/get_status_tab_items()
 	. = ..()
@@ -150,6 +160,27 @@
 	else
 		to_chat(src, SPAN_WARNING("You can't carry more facehuggers on you."))
 
+/mob/living/carbon/Xenomorph/Carrier/proc/store_huggers_from_egg_morpher(obj/effect/alien/resin/special/eggmorph/morpher)
+	if(morpher.linked_hive && (morpher.linked_hive.hivenumber != hivenumber))
+		to_chat(src, SPAN_WARNING("That egg morpher is tainted!"))
+		return
+
+	if(morpher.stored_huggers == 0)
+		to_chat(src, SPAN_WARNING("The egg morpher is empty!"))
+		return
+
+	if(huggers_max > 0 && huggers_cur < huggers_max)
+		var/huggers_to_transfer = min(morpher.stored_huggers, huggers_max-huggers_cur)
+		huggers_cur += huggers_to_transfer
+		morpher.stored_huggers -= huggers_to_transfer
+		if(huggers_to_transfer == 1)
+			to_chat(src, SPAN_NOTICE("You store one facehugger and carry it for safekeeping. Now sheltering: [huggers_cur] / [huggers_max]."))
+		else
+			to_chat(src, SPAN_NOTICE("You store [huggers_to_transfer] facehuggers and carry them for safekeeping. Now sheltering: [huggers_cur] / [huggers_max]."))
+		update_icons()
+	else
+		to_chat(src, SPAN_WARNING("You can't carry more facehuggers on you."))
+
 
 /mob/living/carbon/Xenomorph/Carrier/proc/throw_hugger(atom/T)
 	if(!T)
@@ -170,6 +201,19 @@
 				to_chat(src, SPAN_WARNING("Touching \the [F] while you're on fire would burn it!"))
 				return
 			store_hugger(F)
+			return
+
+	//target an egg morpher to top up on huggers
+	if(istype(T, /obj/effect/alien/resin/special/eggmorph))
+		var/obj/effect/alien/resin/special/eggmorph/morpher = T
+		if(Adjacent(morpher))
+			if(morpher.linked_hive && (morpher.linked_hive.hivenumber != hivenumber))
+				to_chat(src, SPAN_WARNING("That egg morpher is tainted!"))
+				return
+			if(on_fire)
+				to_chat(src, SPAN_WARNING("Touching \the [morpher] while you're on fire would burn the facehuggers in it!"))
+				return
+			store_huggers_from_egg_morpher(morpher)
 			return
 
 	var/obj/item/clothing/mask/facehugger/F = get_active_hand()
@@ -209,8 +253,6 @@
 				var/datum/action/A = X
 				A.update_button_icon()
 
-
-
 /mob/living/carbon/Xenomorph/Carrier/proc/store_egg(obj/item/xeno_egg/E)
 	if(E.hivenumber != hivenumber)
 		to_chat(src, SPAN_WARNING("That egg is tainted!"))
@@ -225,7 +267,6 @@
 	else
 		to_chat(src, SPAN_WARNING("You can't carry more eggs on you."))
 
-
 /mob/living/carbon/Xenomorph/Carrier/proc/retrieve_egg(atom/T)
 	if(!T) return
 
@@ -236,7 +277,13 @@
 	if(istype(T, /obj/item/xeno_egg))
 		var/obj/item/xeno_egg/E = T
 		if(isturf(E.loc) && Adjacent(E))
+			var/turf/egg_turf = E.loc
 			store_egg(E)
+			//Grab all the eggs from the turf
+			if(eggs_cur < eggs_max)
+				for(E in egg_turf)
+					if(eggs_cur < eggs_max)
+						store_egg(E)
 			return
 
 	var/obj/item/xeno_egg/E = get_active_hand()

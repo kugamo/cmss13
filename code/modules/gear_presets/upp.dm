@@ -3,6 +3,7 @@
 	languages = list(LANGUAGE_RUSSIAN, LANGUAGE_ENGLISH)
 	faction = FACTION_UPP
 	idtype = /obj/item/card/id/dogtag
+	origin_override = ORIGIN_UPP
 
 /datum/equipment_preset/upp/New()
 	. = ..()
@@ -1133,7 +1134,7 @@
 	M.attach_accessory(H, W)
 	H.equip_to_slot_or_del(M, WEAR_BODY)
 	for(var/i in 1 to W.hold.storage_slots)
-		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/rifle/type71/ap, WEAR_IN_ACCESSORY)
+		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/rifle/type71/heap, WEAR_IN_ACCESSORY)
 	//jacket
 	H.equip_to_slot_or_del(new /obj/item/clothing/suit/storage/marine/faction/UPP/officer, WEAR_JACKET)
 	H.equip_to_slot_or_del(new /obj/item/device/binoculars/range, WEAR_IN_JACKET)
@@ -1240,7 +1241,7 @@
 		list("Medical HUD Glasses", 4, /obj/item/clothing/glasses/hud/health, null, VENDOR_ITEM_MANDATORY),
 
 		list("SPECIAL AMMUNITION", 0, null, null, null),
-		list("Type 71 AP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/ap , null, VENDOR_ITEM_REGULAR),
+		list("Type 71 HEAP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/heap , null, VENDOR_ITEM_REGULAR),
 
 		list("ATTACHMENTS", 0, null, null, null),
 		list("Angled Grip", 10, /obj/item/attachable/angledgrip, null, VENDOR_ITEM_REGULAR),
@@ -1294,7 +1295,7 @@
 	M.attach_accessory(H, W)
 	H.equip_to_slot_or_del(M, WEAR_BODY)
 	for(var/i in 1 to W.hold.storage_slots)
-		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/rifle/type71/ap, WEAR_IN_ACCESSORY)
+		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/rifle/type71/heap, WEAR_IN_ACCESSORY)
 	//jacket
 	H.equip_to_slot_or_del(new /obj/item/clothing/suit/storage/marine/faction/UPP/officer, WEAR_JACKET)
 	H.equip_to_slot_or_del(new /obj/item/device/binoculars/range, WEAR_IN_JACKET)
@@ -1398,7 +1399,7 @@
 		list("Medical HUD Glasses", 4, /obj/item/clothing/glasses/hud/health, null, VENDOR_ITEM_MANDATORY),
 
 		list("SPECIAL AMMUNITION", 0, null, null, null),
-		list("Type 71 AP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/ap , null, VENDOR_ITEM_REGULAR),
+		list("Type 71 HEAP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/heap , null, VENDOR_ITEM_REGULAR),
 
 		list("ATTACHMENTS", 0, null, null, null),
 		list("Angled Grip", 10, /obj/item/attachable/angledgrip, null, VENDOR_ITEM_REGULAR),
@@ -1452,7 +1453,7 @@
 	M.attach_accessory(H, W)
 	H.equip_to_slot_or_del(M, WEAR_BODY)
 	for(var/i in 1 to W.hold.storage_slots)
-		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/rifle/type71/ap, WEAR_IN_ACCESSORY)
+		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/rifle/type71/heap, WEAR_IN_ACCESSORY)
 	//jacket
 	H.equip_to_slot_or_del(new /obj/item/clothing/suit/storage/marine/faction/UPP/kapitan, WEAR_JACKET)
 	H.equip_to_slot_or_del(new /obj/item/device/binoculars/range, WEAR_IN_JACKET)
@@ -1556,7 +1557,7 @@
 		list("Medical HUD Glasses", 4, /obj/item/clothing/glasses/hud/health, null, VENDOR_ITEM_MANDATORY),
 
 		list("SPECIAL AMMUNITION", 0, null, null, null),
-		list("Type 71 AP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/ap , null, VENDOR_ITEM_REGULAR),
+		list("Type 71 HEAP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/heap , null, VENDOR_ITEM_REGULAR),
 
 		list("ATTACHMENTS", 0, null, null, null),
 		list("Angled Grip", 10, /obj/item/attachable/angledgrip, null, VENDOR_ITEM_REGULAR),
@@ -1611,7 +1612,7 @@
 	M.attach_accessory(H, W)
 	H.equip_to_slot_or_del(M, WEAR_BODY)
 	for(var/i in 1 to W.hold.storage_slots)
-		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/rifle/type71/ap, WEAR_IN_ACCESSORY)
+		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/rifle/type71/heap, WEAR_IN_ACCESSORY)
 	//jacket
 	H.equip_to_slot_or_del(new /obj/item/clothing/suit/storage/marine/faction/UPP/officer, WEAR_JACKET)
 	H.equip_to_slot_or_del(new /obj/item/device/binoculars/range, WEAR_IN_JACKET)
@@ -1715,7 +1716,7 @@
 		list("Medical HUD Glasses", 4, /obj/item/clothing/glasses/hud/health, null, VENDOR_ITEM_MANDATORY),
 
 		list("SPECIAL AMMUNITION", 0, null, null, null),
-		list("Type 71 AP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/ap , null, VENDOR_ITEM_REGULAR),
+		list("Type 71 HEAP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/heap , null, VENDOR_ITEM_REGULAR),
 
 		list("ATTACHMENTS", 0, null, null, null),
 		list("Angled Grip", 10, /obj/item/attachable/angledgrip, null, VENDOR_ITEM_REGULAR),
@@ -1784,6 +1785,8 @@
 	name = "UPP Combat Synthetic"
 	flags = EQUIPMENT_PRESET_EXTRA
 
+	languages = list(LANGUAGE_RUSSIAN, LANGUAGE_ENGLISH, LANGUAGE_JAPANESE, LANGUAGE_YAUTJA, LANGUAGE_XENOMORPH, LANGUAGE_GERMAN, LANGUAGE_SPANISH, LANGUAGE_CHINESE)
+
 	skills = /datum/skills/synthetic
 	assignment = JOB_UPP_COMBAT_SYNTH
 	rank = JOB_UPP_COMBAT_SYNTH
@@ -1795,8 +1798,8 @@
 	var/datum/preferences/A = new()
 	A.randomize_appearance(H)
 	var/random_name
-	if(prob(20))
-		random_name = "[capitalize(randomly_generate_chinese_word(1))]"
+	if(prob(10))
+		random_name = "[capitalize(randomly_generate_chinese_word(2))]"
 	else if(H.gender == MALE)
 		random_name = "[pick(first_names_male_upp)]"
 	else
@@ -2108,7 +2111,7 @@
 	role_comm_title = "JKdo"
 	paygrade = "UC1"
 	idtype = /obj/item/card/id/data
-	languages = list(LANGUAGE_RUSSIAN, LANGUAGE_ENGLISH, LANGUAGE_TSL, LANGUAGE_NEOSPANISH)
+	languages = list(LANGUAGE_RUSSIAN, LANGUAGE_ENGLISH, LANGUAGE_TSL, LANGUAGE_SPANISH)
 
 /datum/equipment_preset/upp/commando/load_gear(mob/living/carbon/human/H)
 	//TODO: add backpacks and satchels
@@ -2134,7 +2137,7 @@
 	H.equip_to_slot_or_del(new /obj/item/handcuffs, WEAR_IN_BACK)
 	H.equip_to_slot_or_del(new /obj/item/handcuffs, WEAR_IN_BACK)
 
-	spawn_weapon(/obj/item/weapon/gun/rifle/type71/carbine/commando, /obj/item/ammo_magazine/rifle/type71/ap, H, 0, 8)
+	spawn_weapon(/obj/item/weapon/gun/rifle/type71/carbine/commando, /obj/item/ammo_magazine/rifle/type71/heap, H, 0, 8)
 
 /datum/equipment_preset/upp/commando/get_antag_clothing_equipment()
 	return list(
@@ -2192,7 +2195,7 @@
 		list("Sandbags x25", 5, /obj/item/stack/sandbags_empty/half, null, VENDOR_ITEM_RECOMMENDED),
 
 		list("SPECIAL AMMUNITION", 0, null, null, null),
-		list("Type 71 AP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/ap , null, VENDOR_ITEM_REGULAR),
+		list("Type 71 HEAP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/heap , null, VENDOR_ITEM_REGULAR),
 
 		list("ATTACHMENTS", 0, null, null, null),
 		list("Angled Grip", 10, /obj/item/attachable/angledgrip, null, VENDOR_ITEM_REGULAR),
@@ -2263,7 +2266,7 @@
 	H.equip_to_slot_or_del(new /obj/item/handcuffs, WEAR_IN_JACKET)
 	H.equip_to_slot_or_del(new /obj/item/handcuffs, WEAR_IN_JACKET)
 
-	spawn_weapon(/obj/item/weapon/gun/rifle/type71/carbine/commando, /obj/item/ammo_magazine/rifle/type71/ap, H, 0, 5)
+	spawn_weapon(/obj/item/weapon/gun/rifle/type71/carbine/commando, /obj/item/ammo_magazine/rifle/type71/heap, H, 0, 5)
 
 /datum/equipment_preset/upp/commando/medic/get_antag_clothing_equipment()
 	return list(
@@ -2362,7 +2365,7 @@
 		list("Stasis Bag", 6, /obj/item/bodybag/cryobag, null, VENDOR_ITEM_REGULAR),
 
 		list("SPECIAL AMMUNITION", 0, null, null, null),
-		list("Type 71 AP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/ap , null, VENDOR_ITEM_REGULAR),
+		list("Type 71 HEAP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/heap , null, VENDOR_ITEM_REGULAR),
 
 		list("ATTACHMENTS", 0, null, null, null),
 		list("Angled Grip", 10, /obj/item/attachable/angledgrip, null, VENDOR_ITEM_REGULAR),
@@ -2427,7 +2430,7 @@
 	H.equip_to_slot_or_del(new /obj/item/handcuffs, WEAR_IN_BACK)
 	H.equip_to_slot_or_del(new /obj/item/storage/box/handcuffs, WEAR_IN_BACK)
 
-	spawn_weapon(/obj/item/weapon/gun/rifle/type71/carbine/commando, /obj/item/ammo_magazine/rifle/type71/ap, H, 0, 7)
+	spawn_weapon(/obj/item/weapon/gun/rifle/type71/carbine/commando, /obj/item/ammo_magazine/rifle/type71/heap, H, 0, 7)
 
 /datum/equipment_preset/upp/commando/leader/get_antag_clothing_equipment()
 	return list(
@@ -2514,7 +2517,7 @@
 		list("Medical HUD Glasses", 4, /obj/item/clothing/glasses/hud/health, null, VENDOR_ITEM_MANDATORY),
 
 		list("SPECIAL AMMUNITION", 0, null, null, null),
-		list("Type 71 AP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/ap , null, VENDOR_ITEM_REGULAR),
+		list("Type 71 HEAP Magazine (5.45x39mm)", 10, /obj/item/ammo_magazine/rifle/type71/heap , null, VENDOR_ITEM_REGULAR),
 
 		list("ATTACHMENTS", 0, null, null, null),
 		list("Angled Grip", 10, /obj/item/attachable/angledgrip, null, VENDOR_ITEM_REGULAR),

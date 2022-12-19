@@ -95,6 +95,9 @@
 	var/stun_reduction = 1 //how much the stunned effect is reduced per Life call.
 	var/knock_out_reduction = 1 //same thing
 
+	 /// If different from 1, a signal is registered on post_spawn().
+	var/weed_slowdown_mult = 1
+
 	var/acid_blood_dodge_chance = 0
 
 	var/list/slot_equipment_priority = DEFAULT_SLOT_PRIORITY
@@ -108,6 +111,8 @@
 	var/list/mob_inherent_traits
 
 	var/ignores_stripdrag_flag = FALSE
+
+	var/has_species_tab_items = FALSE
 
 /datum/species/New()
 	if(unarmed_type)
@@ -361,11 +366,6 @@
 	add_inherent_verbs(H)
 	apply_signals(H)
 
-	if(icobase_source)
-		icobase = get_icon_from_source(icobase_source)
-	if(deform_source)
-		deform = get_icon_from_source(deform_source)
-
 /// Apply signals to the human
 /datum/species/proc/apply_signals(var/mob/living/carbon/human/H)
 	return
@@ -464,3 +464,12 @@
 /datum/species/proc/handle_blood_splatter(var/mob/living/carbon/human/human, var/splatter_dir)
 	var/obj/effect/temp_visual/dir_setting/bloodsplatter/bloodsplatter = new bloodsplatter_type(human.loc, splatter_dir)
 	return bloodsplatter
+
+/datum/species/proc/get_status_tab_items()
+	return list()
+
+/datum/species/proc/handle_head_loss(var/mob/living/carbon/human/human)
+	return
+
+/datum/species/proc/handle_paygrades(var/paygrade, var/size, var/gender)
+	return get_paygrades(paygrade, size, gender)

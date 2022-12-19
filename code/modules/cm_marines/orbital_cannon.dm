@@ -302,12 +302,10 @@ var/list/ob_type_fuel_requirements
 			if(fuel_amt)
 				var/obj/structure/ob_ammo/ob_fuel/OF = new (src)
 				fuel_amt--
-				PC.grab_object(OF, "ob_fuel", 'sound/machines/hydraulics_2.ogg')
+				PC.grab_object(user, OF, "ob_fuel", 'sound/machines/hydraulics_2.ogg')
 			else if(warhead)
-				PC.grab_object(warhead, "ob_warhead", 'sound/machines/hydraulics_2.ogg')
+				PC.grab_object(user, warhead, "ob_warhead", 'sound/machines/hydraulics_2.ogg')
 				warhead = null
-
-			to_chat(user, SPAN_NOTICE("You retrieve \the [PC.loaded] from \the [src]."))
 			update_icon()
 			return TRUE
 	else
@@ -319,6 +317,7 @@ var/list/ob_type_fuel_requirements
 	anchored = 1
 	throwpass = TRUE
 	climbable = TRUE
+	unacidable = TRUE // issue: being used for defences, solution: abomb
 	icon = 'icons/obj/structures/props/almayer_props.dmi'
 	var/is_solid_fuel = 0
 	var/source_mob
@@ -329,16 +328,10 @@ var/list/ob_type_fuel_requirements
 		if(!PC.linked_powerloader)
 			qdel(PC)
 			return TRUE
-
-		if(PC.loaded)
-			to_chat(user, SPAN_WARNING("\The [PC] must be empty in order to grab \the [src]!"))
-			return TRUE
-
 		if(is_solid_fuel)
-			PC.grab_object(src, "ob_fuel", 'sound/machines/hydraulics_2.ogg')
+			PC.grab_object(user, src, "ob_fuel", 'sound/machines/hydraulics_2.ogg')
 		else
-			PC.grab_object(src, "ob_warhead", 'sound/machines/hydraulics_2.ogg')
-		to_chat(user, SPAN_NOTICE("You grab \the [src] with \the [PC]."))
+			PC.grab_object(user, src, "ob_warhead", 'sound/machines/hydraulics_2.ogg')
 		update_icon()
 		return TRUE
 	else

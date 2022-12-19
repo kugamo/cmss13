@@ -71,14 +71,45 @@
 	if(A > upper) return 0
 	return 1
 
+/// Gives X position on pixel grid of an object, accounting for offsets
+/proc/get_pixel_position_x(atom/subject, relative = FALSE)
+	. = subject.pixel_x + subject.base_pixel_x
+	if(!relative)
+		. += world.icon_size * subject.x
 
-/proc/Get_Angle(atom/start,atom/end)//For beams.
+	if(ismob(subject)) // Mobs use baked in icon_size due to eg. Xenos only using a visual size
+		var/mob/mob_subject = subject
+		. += (mob_subject.icon_size - world.icon_size) / 2
+
+	else if(ismovable(subject)) // Other movables we assume use bound_height/width collision boxes
+		var/atom/movable/big_subject = subject
+		. += (big_subject.bound_width  - world.icon_size) / 2
+
+/// Gives Y position on pixel grid of an object, accounting for offsets
+/proc/get_pixel_position_y(atom/subject, relative = FALSE)
+	. = subject.pixel_y + subject.base_pixel_y
+	if(!relative)
+		. += world.icon_size * subject.y
+
+	if(ismob(subject)) // Mobs use baked in icon_size due to eg. Xenos only using a visual size
+		var/mob/mob_subject = subject
+		. += (mob_subject.icon_size - world.icon_size) / 2
+
+	else if(ismovable(subject)) // Other movables we assume use bound_height/width collision boxes
+		var/atom/movable/big_subject = subject
+		. += (big_subject.bound_height  - world.icon_size) / 2
+
+/proc/Get_Angle(atom/start,atom/end, var/tile_bound = FALSE)//For beams.
 	if(!start || !end) return 0
 	if(!start.z || !end.z) return 0 //Atoms are not on turfs.
-	var/dy
 	var/dx
-	dy=(32*end.y+end.pixel_y)-(32*start.y+start.pixel_y)
-	dx=(32*end.x+end.pixel_x)-(32*start.x+start.pixel_x)
+	var/dy
+	if(tile_bound)
+		dy=end.y-start.y
+		dx=end.x-start.x
+	else
+		dy = get_pixel_position_y(end) - get_pixel_position_y(start)
+		dx = get_pixel_position_x(end) - get_pixel_position_x(start)
 	if(!dy)
 		return (dx>=0)?90:270
 	.=arctan(dx/dy)
@@ -1634,12 +1665,19 @@ var/list/WALLITEMS = list(
 // * The dropship crash hasn't happened yet
 // * An admin hasn't disabled explosive antigrief
 // Certain areas may be exempt from this check. Look up explosive_antigrief_exempt_areas
-/proc/explosive_grief_check(var/obj/item/explosive/E)
-	var/turf/T = get_turf(E)
-	if(!(T.loc.type in GLOB.explosive_antigrief_exempt_areas))
+/proc/explosive_antigrief_check(var/obj/item/explosive/explosive, var/mob/user)
+	var/turf/Turf = get_turf(explosive)
+	if(!(Turf.loc.type in GLOB.explosive_antigrief_exempt_areas))
 		var/crash_occured = (SSticker?.mode?.is_in_endgame)
-		if((T.z in SSmapping.levels_by_any_trait(list(ZTRAIT_MARINE_MAIN_SHIP, ZTRAIT_LOWORBIT))) && (security_level < SEC_LEVEL_RED) && !crash_occured && explosive_antigrief_on)
-			return TRUE
+		if((Turf.z in SSmapping.levels_by_any_trait(list(ZTRAIT_MARINE_MAIN_SHIP, ZTRAIT_LOWORBIT))) && (security_level < SEC_LEVEL_RED) && !crash_occured)
+			switch(CONFIG_GET(number/explosive_antigrief))
+				if(ANTIGRIEF_DISABLED)
+					return FALSE
+				if(ANTIGRIEF_NEW_PLAYERS) //if they have less than 10 hours, dont let them prime nades
+					if(user.client && user.client.get_total_human_playtime() < JOB_PLAYTIME_TIER_1)
+						return TRUE
+				else //ANTIGRIEF_ENABLED
+					return TRUE
 	return FALSE
 
 // Returns only the perimeter of the block given by the min and max turfs
@@ -1748,7 +1786,7 @@ var/list/WALLITEMS = list(
 	if(isRemoteControlling(user))
 		return TRUE
 	// If the user is not a xeno (with active ability) with the shift click pref on, we examine. God forgive me for snowflake
-	if(user.client.prefs && !(user.client.prefs.toggle_prefs & TOGGLE_MIDDLE_MOUSE_CLICK))
+	if(user.client?.prefs && !(user.client?.prefs?.toggle_prefs & TOGGLE_MIDDLE_MOUSE_CLICK))
 		if(isXeno(user))
 			var/mob/living/carbon/Xenomorph/X = user
 			if(X.selected_ability)

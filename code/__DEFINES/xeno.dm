@@ -82,6 +82,8 @@
 #define NORMAL_XENO             0
 #define XENO_QUEEN              1
 #define XENO_LEADER             2
+/// Nobody can create constructions. (Feral)
+#define XENO_NOBODY             3
 
 #define XENO_HIVE_AREA_SIZE 21 //The turf size from the centrepiece of a hive in which special things can be done (like building structures)
 
@@ -137,8 +139,6 @@
 
 /// Multiplicative. The amount of damage xenos do to weeds.
 #define WEED_XENO_DAMAGEMULT 0.25
-/// Multiplicative. The slowdown that other xenos from different hives suffer. Also applies to sticky resin.
-#define WEED_XENO_SPEED_MULT 1
 
 #define WEED_HEALTH_STANDARD 5
 #define WEED_HEALTH_HARDY    10
@@ -560,8 +560,8 @@
 // HIVECORE COOLDOWN TIME
 #define HIVECORE_COOLDOWN 5 MINUTES
 
-// The round time where the xenos will no longer be able to move hivecore without cooldowns
-#define HIVECORE_COOLDOWN_CUTOFF 20 MINUTES
+// Xeno 'pre-setup' duration, round time where the xenos will no longer be able to move hivecore without cooldowns or burrow up as larvae from the ground without a pool.
+#define XENOMORPH_PRE_SETUP_CUTOFF 20 MINUTES
 
 // Xeno shield HUD scale factor (1.5x so its easier to see, most times)
 #define XENO_SHIELD_HUD_SCALE_FACTOR 1.5
@@ -582,7 +582,8 @@
 //XENO CASTES
 #define XENO_CASTE_LARVA             "Bloody Larva"
 #define XENO_CASTE_PREDALIEN_LARVA   "Predalien Larva"
-#define XENO_T0_CASTES               list(XENO_CASTE_LARVA, XENO_CASTE_PREDALIEN_LARVA)
+#define XENO_CASTE_FACEHUGGER        "Facehugger"
+#define XENO_T0_CASTES               list(XENO_CASTE_LARVA, XENO_CASTE_PREDALIEN_LARVA, XENO_CASTE_FACEHUGGER)
 
 //t1
 #define XENO_CASTE_DRONE             "Drone"
@@ -610,7 +611,7 @@
 #define XENO_CASTE_HELLHOUND         "Hellhound"
 #define XENO_SPECIAL_CASTES          list(XENO_CASTE_QUEEN, XENO_CASTE_PREDALIEN, XENO_CASTE_HELLHOUND)
 
-#define ALL_XENO_CASTES list(XENO_CASTE_LARVA, XENO_CASTE_PREDALIEN_LARVA, XENO_CASTE_DRONE, XENO_CASTE_RUNNER, XENO_CASTE_SENTINEL, XENO_CASTE_DEFENDER, XENO_CASTE_BURROWER, XENO_CASTE_CARRIER, XENO_CASTE_HIVELORD, XENO_CASTE_LURKER, XENO_CASTE_WARRIOR, XENO_CASTE_SPITTER, XENO_CASTE_BOILER, XENO_CASTE_PRAETORIAN, XENO_CASTE_CRUSHER, XENO_CASTE_RAVAGER, XENO_CASTE_QUEEN, XENO_CASTE_PREDALIEN, XENO_CASTE_HELLHOUND)
+#define ALL_XENO_CASTES list(XENO_CASTE_LARVA, XENO_CASTE_PREDALIEN_LARVA, XENO_CASTE_FACEHUGGER, XENO_CASTE_DRONE, XENO_CASTE_RUNNER, XENO_CASTE_SENTINEL, XENO_CASTE_DEFENDER, XENO_CASTE_BURROWER, XENO_CASTE_CARRIER, XENO_CASTE_HIVELORD, XENO_CASTE_LURKER, XENO_CASTE_WARRIOR, XENO_CASTE_SPITTER, XENO_CASTE_BOILER, XENO_CASTE_PRAETORIAN, XENO_CASTE_CRUSHER, XENO_CASTE_RAVAGER, XENO_CASTE_QUEEN, XENO_CASTE_PREDALIEN, XENO_CASTE_HELLHOUND)
 
 // Checks if two hives are allied to each other.
 // PARAMETERS:
@@ -661,3 +662,8 @@
 #define TAILSTAB_COOLDOWN_NORMAL 1
 #define TAILSTAB_COOLDOWN_HIGH 1.5
 #define TAILSTAB_COOLDOWN_VERY_HIGH 2
+
+#define TAILSTAB_MOB_DAMAGE_MULTIPLIER 1.2
+#define TAILSTAB_AIRLOCK_DAMAGE_MULTIPLIER 2
+
+#define FRENZY_DAMAGE_MULTIPLIER	2

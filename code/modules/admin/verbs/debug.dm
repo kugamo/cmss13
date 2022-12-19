@@ -185,7 +185,7 @@ GLOBAL_PROTECT(AdminProcCallSpamPrevention)
 			class = tgui_input_list(usr, "Proc owned by...","Owner", options)
 			switch(class)
 				if("Obj")
-					target = input("Enter target:","Target",usr) as obj in GLOB.object_list
+					target = input("Enter target:","Target",usr) as obj in world
 				if("Mob")
 					target = input("Enter target:","Target",usr) as mob in GLOB.mob_list
 				if("Area or Turf")
@@ -428,7 +428,7 @@ GLOBAL_PROTECT(AdminProcCallSpamPrevention)
 /client/proc/cmd_debug_make_powernets()
 	set category = "Debug"
 	set name = "Generate Powernets"
-	if(alert("Are you sure you want to do this?",, "Yes", "No") == "No") return
+	if(alert("Are you sure you want to do this?",, "Yes", "No") != "Yes") return
 	makepowernets()
 	message_staff("[key_name_admin(src)] has remade the powernets. makepowernets() called.", 0)
 

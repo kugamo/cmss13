@@ -17,17 +17,27 @@
 
 /datum/equipment_preset/pmc/load_name(mob/living/carbon/human/H, var/randomise)
 	H.gender = pick(MALE,FEMALE)
-	var/list/first_names_m = list("Owen","Luka","Nelson","Branson", "Tyson", "Leo", "Bryant", "Kobe", "Rohan", "Riley", "Aidan", "Watase","Egawa", "Hisakawa", "Koide", "Remy", "Martial", "Magnus", "Heiko", "Lennard")
-	var/list/first_names_f = list("Madison","Jessica","Anna","Juliet", "Olivia", "Lea", "Diane", "Kaori", "Beatrice", "Riley", "Amy", "Natsue","Yumi", "Aiko", "Fujiko", "Jennifer", "Ashley", "Mary", "Hitomi", "Lisa")
-	var/list/last_names_mb = list("Bates","Shaw","Hansen","Black", "Chambers", "Hall", "Gibson", "Weiss", "Waller", "Burton", "Bakin", "Rohan", "Naomichi", "Yakumo", "Yosai", "Gallagher", "Hiles", "Bourdon", "Strassman", "Palau")
+	var/random_name
+	var/first_name
+	var/last_name
 	var/datum/preferences/A = new()
 	A.randomize_appearance(H)
-	var/random_name
 	if(H.gender == MALE)
-		random_name = "[pick(first_names_m)] [pick(last_names_mb)]"
+		if(prob(10))
+			first_name = "[capitalize(randomly_generate_japanese_word(rand(2, 3)))]"
+		else
+			first_name = "[pick(first_names_male_pmc)]"
 		H.f_style = "5 O'clock Shadow"
 	else
-		random_name = "[pick(first_names_f)] [pick(last_names_mb)]"
+		if(prob(10))
+			first_name = "[capitalize(randomly_generate_japanese_word(rand(2, 3)))]"
+		else
+			first_name = "[pick(first_names_female_pmc)]"
+	if(prob(25))
+		last_name = "[capitalize(randomly_generate_japanese_word(rand(2, 4)))]"
+	else
+		last_name = "[pick(last_names_pmc)]"
+	random_name = "[first_name] [last_name]"
 	H.change_real_name(H, random_name)
 	H.age = rand(25,35)
 	H.h_style = "Shaved Head"
@@ -601,7 +611,7 @@
 	name = "Weyland-Yutani PMC (Site Director)"
 	flags = EQUIPMENT_PRESET_EXTRA
 
-	languages = list(LANGUAGE_ENGLISH, LANGUAGE_RUSSIAN, LANGUAGE_JAPANESE, LANGUAGE_WELTRAUMDEUTSCH, LANGUAGE_NEOSPANISH, LANGUAGE_CHINESE)
+	languages = list(LANGUAGE_ENGLISH, LANGUAGE_RUSSIAN, LANGUAGE_JAPANESE, LANGUAGE_GERMAN, LANGUAGE_SPANISH, LANGUAGE_CHINESE)
 
 	assignment = JOB_PMC_DIRECTOR
 	rank = JOB_PMC_DIRECTOR
@@ -634,3 +644,91 @@
 	name = "Weyland-Yutani PMC (Site Director) | HvH"
 	human_versus_human = TRUE
 	headset_type = /obj/item/device/radio/headset/distress/PMC/hvh/cct
+
+//*****************************************************************************************************/
+
+/datum/equipment_preset/pmc/synth
+		name = "Weyland-Yutani PMC (Support Synthetic)"
+		flags = EQUIPMENT_PRESET_EXTRA
+
+		languages = list(LANGUAGE_ENGLISH, LANGUAGE_RUSSIAN, LANGUAGE_JAPANESE, LANGUAGE_YAUTJA, LANGUAGE_XENOMORPH, LANGUAGE_GERMAN, LANGUAGE_SPANISH, LANGUAGE_CHINESE)
+
+		skills = /datum/skills/synthetic
+		idtype = /obj/item/card/id/data
+		assignment = JOB_PMC_SYNTH
+		rank = JOB_PMC_SYNTH
+		role_comm_title = "SYN"
+
+
+/datum/equipment_preset/pmc/synth/load_name(mob/living/carbon/human/H, var/randomise)
+	H.gender = pick(50;MALE,50;FEMALE)
+	var/datum/preferences/A = new()
+	A.randomize_appearance(H)
+	var/random_name
+	if(prob(10))
+		random_name = "[capitalize(randomly_generate_japanese_word(rand(2, 3)))]"
+	else if(H.gender == MALE)
+		random_name = "[pick(first_names_male_pmc)]"
+	else
+		random_name = "[pick(first_names_female_pmc)]"
+
+	if(H.gender == MALE)
+		H.f_style = "5 O'clock Shadow"
+
+	H.change_real_name(H, random_name)
+	H.r_hair = 15
+	H.g_hair = 15
+	H.b_hair = 25
+	H.r_eyes = 139
+	H.g_eyes = 62
+	H.b_eyes = 19
+
+/datum/equipment_preset/pmc/synth/load_race(mob/living/carbon/human/H)
+		H.set_species(SYNTH_GEN_THREE)
+
+/datum/equipment_preset/pmc/synth/load_skills(mob/living/carbon/human/H)
+		H.set_skills(/datum/skills/synthetic)
+		H.allow_gun_usage = FALSE
+
+/datum/equipment_preset/pmc/synth/load_gear(mob/living/carbon/human/H)
+		H.equip_to_slot_or_del(new /obj/item/clothing/under/marine/veteran/PMC, WEAR_BODY)
+		H.equip_to_slot_or_del(new /obj/item/clothing/accessory/storage/surg_vest/equipped, WEAR_ACCESSORY)
+		H.equip_to_slot_or_del(new /obj/item/clothing/suit/storage/marine/veteran/PMC/light/synth, WEAR_JACKET)
+		H.equip_to_slot_or_del(new /obj/item/weapon/melee/telebaton, WEAR_IN_JACKET)
+		H.equip_to_slot_or_del(new /obj/item/tool/surgery/synthgraft, WEAR_IN_JACKET)
+		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/smg/nailgun, WEAR_IN_JACKET)
+
+		H.equip_to_slot_or_del(new /obj/item/clothing/head/helmet/marine/veteran/PMC, WEAR_HEAD)
+		H.equip_to_slot_or_del(new headset_type, WEAR_L_EAR)
+		H.equip_to_slot_or_del(new /obj/item/clothing/glasses/night/experimental_mesons, WEAR_EYES)
+		H.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/PMC, WEAR_FACE)
+
+		H.equip_to_slot_or_del(new /obj/item/clothing/gloves/marine/veteran/PMC, WEAR_HANDS)
+		H.equip_to_slot_or_del(new /obj/item/clothing/shoes/veteran/PMC/knife, WEAR_FEET)
+
+		H.equip_to_slot_or_del(new /obj/item/storage/backpack/marine/smartpack/white, WEAR_BACK)
+		H.equip_to_slot_or_del(new /obj/item/roller, WEAR_IN_BACK)
+		H.equip_to_slot_or_del(new /obj/item/roller/surgical, WEAR_IN_BACK)
+		H.equip_to_slot_or_del(new /obj/item/tool/extinguisher/mini, WEAR_IN_BACK)
+		H.equip_to_slot_or_del(new /obj/item/device/defibrillator/upgraded, WEAR_IN_BACK)
+		H.equip_to_slot_or_del(new /obj/item/ammo_magazine/smg/nailgun, WEAR_IN_BACK)
+		new /obj/item/clothing/suit/auto_cpr(H.back)
+
+		H.equip_to_slot_or_del(new /obj/item/storage/belt/medical/lifesaver/full/dutch, WEAR_WAIST)
+		H.equip_to_slot_or_del(new /obj/item/weapon/gun/smg/nailgun/compact, WEAR_J_STORE)
+
+		H.equip_to_slot_or_del(new /obj/item/storage/pouch/tools/tactical, WEAR_L_STORE)
+		H.equip_to_slot_or_del(new /obj/item/tool/screwdriver/tactical, WEAR_IN_L_STORE)
+		H.equip_to_slot_or_del(new /obj/item/tool/crowbar/tactical, WEAR_IN_L_STORE)
+		H.equip_to_slot_or_del(new /obj/item/tool/wirecutters/tactical, WEAR_IN_L_STORE)
+		H.equip_to_slot_or_del(new /obj/item/tool/wrench, WEAR_IN_L_STORE)
+		H.equip_to_slot_or_del(new /obj/item/stack/cable_coil, WEAR_IN_L_STORE)
+		H.equip_to_slot_or_del(new /obj/item/stack/cable_coil, WEAR_IN_L_STORE)
+		H.equip_to_slot_or_del(new /obj/item/device/multitool, WEAR_IN_L_STORE)
+		H.equip_to_slot_or_del(new /obj/item/tool/weldingtool/hugetank, WEAR_IN_L_STORE)
+		H.equip_to_slot_or_del(new /obj/item/storage/pouch/construction/full_barbed_wire, WEAR_R_STORE)
+
+/datum/equipment_preset/pmc/synth/hvh
+		name = "Weyland-Yutani PMC (Support Synthetic) | HvH"
+		human_versus_human = TRUE
+		headset_type = /obj/item/device/radio/headset/distress/PMC/hvh/cct

@@ -55,7 +55,8 @@
 
 	var/image/attack_icon = null //the image used as overlay on the things we attack.
 
-	var/zoom_cooldown = 0 //Cooldown on using zooming items, to limit spam
+	COOLDOWN_DECLARE(zoom_cooldown) //Cooldown on using zooming items, to limit spam
+
 	var/do_bump_delay = 0	// Flag to tell us to delay movement because of being bumped
 
 	var/reagent_move_delay_modifier = 0 //negative values increase movement speed
@@ -77,6 +78,8 @@
 	var/blood_volume = 0 //how much blood the mob has
 	var/max_blood = BLOOD_VOLUME_NORMAL  // how much they should have
 
+	var/hivenumber
+
 	var/datum/pain/pain	//Pain datum for the mob, set on New()
 	var/datum/stamina/stamina
 
@@ -87,3 +90,5 @@
 	var/list/active_surgeries = DEFENSE_ZONES_LIVING
 	///Assoc. list - incision depths, by aim zone. Set by initialize_incision_depths().
 	var/list/incision_depths = DEFENSE_ZONES_LIVING
+
+	var/current_weather_effect_type

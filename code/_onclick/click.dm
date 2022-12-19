@@ -39,7 +39,6 @@
 	if (world.time < next_click)
 		return
 
-
 	next_click = world.time + 1 //Maximum code-permitted clickrate 10.26/s, practical maximum manual rate: 8.5, autoclicker maximum: between 7.2/s and 8.5/s.
 	var/list/mods = params2list(params)
 
@@ -59,16 +58,16 @@
 	if(SEND_SIGNAL(src, COMSIG_MOB_PRE_CLICK, A, mods) & COMPONENT_INTERRUPT_CLICK)
 		return
 
-	if (client.buildmode)
-		if (istype(A, /obj/effect/bmode) || istype(A, /obj/effect/buildholder))
+	if(istype(A, /obj/statclick))
+		A.clicked(src, mods)
+		return
+
+	if(client.click_intercept)
+		if(istype(A, /atom/movable/screen/buildmode))
 			A.clicked(src, mods)
 			return
 
-		client.buildmode.object_click(src, mods, A)
-		return
-
-	if(istype(A, /obj/statclick))
-		A.clicked(src, mods)
+	if(check_click_intercept(params,A))
 		return
 
 	// Click handled elsewhere. (These clicks are not affected by the next_move cooldown)
@@ -99,15 +98,21 @@
 	var/obj/item/W = get_active_hand()
 
 	// Special gun mode stuff.
-	if (W == A)
+	if(W == A)
 		mode()
 		return
 
 	//Self-harm preference. isXeno check because xeno clicks on self are redirected to the turf below the pointer.
-	if (A == src && client.prefs && client.prefs.toggle_prefs & TOGGLE_IGNORE_SELF && src.a_intent != INTENT_HELP && !isXeno(src) && W.force && (!W || !(W.flags_item & (NOBLUDGEON|ITEM_ABSTRACT))))
-		if (world.time % 3)
-			to_chat(src, SPAN_NOTICE("You have the discipline not to hurt yourself."))
-		return
+	if(A == src && client.prefs && client.prefs.toggle_prefs & TOGGLE_IGNORE_SELF && src.a_intent != INTENT_HELP && !isXeno(src))
+		if(W)
+			if(W.force && (!W || !(W.flags_item & (NOBLUDGEON|ITEM_ABSTRACT))))
+				if(world.time % 3)
+					to_chat(src, SPAN_NOTICE("You have the discipline not to hurt yourself."))
+				return
+		else
+			if(world.time % 3)
+				to_chat(src, SPAN_NOTICE("You have the discipline not to hurt yourself."))
+			return
 
 
 	// Don't allow doing anything else if inside a container of some sort, like a locker.
@@ -149,6 +154,18 @@
 			next_move += 4
 		UnarmedAttack(A, 1, mods)
 
+/mob/proc/check_click_intercept(params,A)
+	//Client level intercept
+	if(client?.click_intercept)
+		if(call(client.click_intercept, "InterceptClickOn")(src, params, A))
+			return TRUE
+
+	//Mob level intercept
+	if(click_intercept)
+		if(call(click_intercept, "InterceptClickOn")(src, params, A))
+			return TRUE
+
+	return FALSE
 
 /*	OLD DESCRIPTION
 	Standard mob ClickOn()
@@ -176,8 +193,7 @@
 	if (mods["alt"])
 		var/turf/T = get_turf(src)
 		if(T && user.TurfAdjacent(T) && T.contents.len)
-			user.listed_turf = T
-			user.client << output("[url_encode(json_encode(T.name))];", "statbrowser:create_listedturf")
+			user.set_listed_turf(T)
 
 		return TRUE
 	return FALSE

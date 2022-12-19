@@ -74,7 +74,7 @@
 			playsound(loc, prob(50) == 1 ? 'sound/voice/alien_death.ogg' : 'sound/voice/alien_death2.ogg', 25, 1)
 		var/area/A = get_area(src)
 		if(hive && hive.living_xeno_queen)
-			xeno_message("Hive: [src] has <b>died</b>[A? " at [sanitize(A.name)]":""]! [banished ? "They were banished from the hive." : ""]", 3, hivenumber)
+			xeno_message("Hive: [src] has <b>died</b>[A? " at [sanitize_area(A.name)]":""]! [banished ? "They were banished from the hive." : ""]", death_fontsize, hivenumber)
 
 	if(hive && IS_XENO_LEADER(src))	//Strip them from the Xeno leader list, if they are indexed in here
 		hive.remove_hive_leader(src)
@@ -92,30 +92,30 @@
 		A.forceMove(loc)
 
 	// Banished xeno provide a pooled larva on death to compensate
-	if(banished)
+	if(banished && refunds_larva_if_banished)
 		GLOB.hive_datum[hivenumber].stored_larva++
 		GLOB.hive_datum[hivenumber].hive_ui.update_pooled_larva()
 
 	if(hive)
 		hive.remove_xeno(src)
 		// Finding the last xeno for anti-delay.
-		if(hive.hivenumber == XENO_HIVE_NORMAL && (LAZYLEN(hive.totalXenos) == 1))
-			var/mob/living/carbon/Xenomorph/X = LAZYACCESS(hive.totalXenos, 1)
-			// Tell the marines where the last one is.
-			var/name = "[MAIN_AI_SYSTEM] Bioscan Status"
-			var/input = "Bioscan complete.\n\nSensors indicate one remaining unknown lifeform signature in [get_area(X)]."
-			marine_announcement(input, name, 'sound/AI/bioscan.ogg')
-			// Tell the xeno she is the last one.
-			if(X.client)
-				to_chat(X, SPAN_XENOANNOUNCE("Your carapace rattles with dread. You are all that remains of the hive!"))
-			announce_dchat("There is only one Xenomorph left: [X.name].", X)
+		if(SSticker.mode && SSticker.current_state != GAME_STATE_FINISHED)
+			if((last_ares_callout + 2 MINUTES) > world.time)
+				return
+			if(hive.hivenumber == XENO_HIVE_NORMAL && (LAZYLEN(hive.totalXenos) == 1))
+				var/mob/living/carbon/Xenomorph/X = LAZYACCESS(hive.totalXenos, 1)
+				last_ares_callout = world.time
+				// Tell the marines where the last one is.
+				var/name = "[MAIN_AI_SYSTEM] Bioscan Status"
+				var/input = "Bioscan complete.\n\nSensors indicate one remaining unknown lifeform signature in [get_area(X)]."
+				marine_announcement(input, name, 'sound/AI/bioscan.ogg')
+				// Tell the xeno she is the last one.
+				if(X.client)
+					to_chat(X, SPAN_XENOANNOUNCE("Your carapace rattles with dread. You are all that remains of the hive!"))
+				announce_dchat("There is only one Xenomorph left: [X.name].", X)
 
 	if(hardcore)
 		QDEL_IN(src, 3 SECONDS)
-
-	for(var/i in built_structures)
-		var/list/L = built_structures[i]
-		QDEL_NULL_LIST(L)
 
 	SEND_GLOBAL_SIGNAL(COMSIG_GLOB_XENO_DEATH, src, gibbed)
 
@@ -149,9 +149,9 @@
 	var/to_flick = "gibbed-a"
 	var/icon_path
 	if(mob_size >= MOB_SIZE_BIG)
-		icon_path = 'icons/mob/hostiles/xenomorph_64x64.dmi'
+		icon_path = 'icons/mob/xenos/xenomorph_64x64.dmi'
 	else
-		icon_path = 'icons/mob/hostiles/xenomorph_48x48.dmi'
+		icon_path = 'icons/mob/xenos/xenomorph_48x48.dmi'
 	switch(caste.caste_type)
 		if(XENO_CASTE_RUNNER)
 			to_flick = "gibbed-a-runner"
