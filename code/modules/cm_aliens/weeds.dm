@@ -394,7 +394,12 @@
 	plane = GAME_PLANE
 	icon_state = "weedwall"
 	var/list/wall_connections = list("0", "0", "0", "0")
-	hibernate = TRUE
+	var/obj/effect/alien/weeds/weedwall/corner_friend
+
+/obj/effect/alien/weeds/weedwall/Destroy()
+	qdel(corner_friend)
+	corner_friend = null
+	. = ..()
 
 /obj/effect/alien/weeds/weedwall/update_icon()
 	if(istype(loc, /turf/closed/wall))
@@ -405,6 +410,22 @@
 		for(var/i = 1 to 4)
 			I = image(icon, "weedwall[wall_connections[i]]", dir = 1<<(i-1))
 			overlays += I
+
+/obj/effect/alien/weeds/weedwall/weed_expand()
+	for(var/found_dir in cardinal)
+		var/turf/cardinal_turf_neighbor = get_step(src, found_dir)
+		if(!cardinal_turf_neighbor.density || locate(/obj/effect/alien/weeds/weedwall/) in cardinal_turf_neighbor)
+			continue
+		var/weed_count = 0
+		for(var/found_dir_2 in cardinal)
+			var/turf/cardinal_turf_neighbor_2 = get_step(cardinal_turf_neighbor, found_dir_2)
+			if(locate(/obj/effect/alien/weeds/weedwall/) in cardinal_turf_neighbor_2)
+				weed_count ++
+		if(weed_count >= 2)
+			corner_friend = new /obj/effect/alien/weeds/weedwall(cardinal_turf_neighbor, parent)
+			hibernate = TRUE
+			return
+	hibernate = TRUE
 
 /obj/effect/alien/weeds/weedwall/window
 	layer = ABOVE_TABLE_LAYER
