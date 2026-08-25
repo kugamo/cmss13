@@ -38,6 +38,8 @@
 
 	var/lip_style = null //no lipstick by default- arguably misleading, as it could be used for general makeup
 
+	var/mouth_style = "toothy"
+
 	var/age = 30 //Player's age (pure fluff)
 	blood_type = "A+" //Player's bloodtype
 
@@ -187,6 +189,9 @@
 
 	// Haul resist cooldown
 	var/next_haul_resist
+
+	// mouth image, for speaking
+	var/image/mouth
 
 /client/var/cached_human_playtime
 
