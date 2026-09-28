@@ -157,11 +157,7 @@
 		setup_onclose()
 
 /datum/browser/proc/setup_onclose()
-	set waitfor = 0 //winexists sleeps, so we don't need to.
-	for(var/i in 1 to 10)
-		if(user && winexists(user, window_id))
-			onclose(user, window_id, ref)
-			break
+	return //ITS BROKEN ITS BROKEN ITS BROKEN
 
 /datum/browser/proc/close()
 	if(!isnull(window_id))//null check because this can potentially nuke goonchat
