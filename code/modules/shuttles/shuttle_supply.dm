@@ -25,18 +25,8 @@
 		shuttle.Elevator_x = shuttle.pick_loc().x
 		shuttle.Elevator_y = shuttle.pick_loc().y
 		shuttle.Elevator_z = shuttle.pick_loc().z
-		shuttle.SW = new /obj/effect/elevator(locate(shuttle.Elevator_x-2,shuttle.Elevator_y-2,shuttle.Elevator_z))
-		shuttle.SW.vis_contents += shuttle.elevator_animation
-		shuttle.SE = new /obj/effect/elevator(locate(shuttle.Elevator_x+2,shuttle.Elevator_y-2,shuttle.Elevator_z))
-		shuttle.SE.pixel_x = -128
-		shuttle.SE.vis_contents += shuttle.elevator_animation
-		shuttle.NW = new /obj/effect/elevator(locate(shuttle.Elevator_x-2,shuttle.Elevator_y+2,shuttle.Elevator_z))
-		shuttle.NW.pixel_y = -128
-		shuttle.NW.vis_contents += shuttle.elevator_animation
-		shuttle.NE = new /obj/effect/elevator(locate(shuttle.Elevator_x+2,shuttle.Elevator_y+2,shuttle.Elevator_z))
-		shuttle.NE.pixel_x = -128
-		shuttle.NE.pixel_y = -128
-		shuttle.NE.vis_contents += shuttle.elevator_animation
+		shuttle.the_pit = new /obj/effect/elevator(locate(shuttle.Elevator_x, shuttle.Elevator_y, shuttle.Elevator_z))
+		shuttle.the_pit.vis_contents += shuttle.elevator_animation
 	return INITIALIZE_HINT_QDEL
 
 
@@ -51,10 +41,7 @@
 	var/max_late_time = 300
 	var/railing_id = "supply_elevator_railing"
 	var/gear_id = "supply_elevator_gear"
-	var/obj/effect/elevator/SW //elevator effects (four so the entire elevator doesn't vanish when
-	var/obj/effect/elevator/SE //there's one opaque obstacle between you and the actual elevator loc).
-	var/obj/effect/elevator/NW
-	var/obj/effect/elevator/NE
+	var/obj/effect/elevator/the_pit
 	var/Elevator_x
 	var/Elevator_y
 	var/Elevator_z
@@ -90,18 +77,8 @@
 		Elevator_x = pick_loc().x
 		Elevator_y = pick_loc().y
 		Elevator_z = pick_loc().z
-		SW = new /obj/effect/elevator(locate(Elevator_x-2,Elevator_y-2,Elevator_z))
-		SW.vis_contents += elevator_animation
-		SE = new /obj/effect/elevator(locate(Elevator_x+2,Elevator_y-2,Elevator_z))
-		SE.pixel_x = -128
-		SE.vis_contents += elevator_animation
-		NW = new /obj/effect/elevator(locate(Elevator_x-2,Elevator_y+2,Elevator_z))
-		NW.pixel_y = -128
-		NW.vis_contents += elevator_animation
-		NE = new /obj/effect/elevator(locate(Elevator_x+2,Elevator_y+2,Elevator_z))
-		NE.pixel_x = -128
-		NE.pixel_y = -128
-		NE.vis_contents += elevator_animation
+		the_pit = new /obj/effect/elevator(locate(Elevator_x,Elevator_y,Elevator_z))
+		the_pit.vis_contents += elevator_animation
 
 /datum/shuttle/ferry/supply/short_jump(area/origin, area/destination)
 	if(moving_status != SHUTTLE_IDLE)
@@ -141,48 +118,63 @@
 
 		/*We attach the turfs in our starting area to the vis_contents overlay. The elevator effect procs will animate this. If we're going down, the stuff will instantly be
 		teleported and then cosmetically animated as lowering; otherwise, it will be animated as raising, then teleported afterwards. Either way, it's all on the admin level.*/
+		var/lowest_x
+		var/highest_x
+		var/lowest_y
+		var/highest_y
 		for(var/turf/T in away_area)
-			elevator_animation.vis_contents += T
+			var/obj/turf_holder_for_vis_contents/thing = new()
+			T.vis_flags &= ~VIS_INHERIT_PLANE
+			thing.vis_contents += T
+			elevator_animation.vis_contents += thing
+			if(lowest_x == null)
+				lowest_x = T.x
+			else if(T.x < lowest_x)
+				lowest_x = T.x
 
+			if(highest_x == null)
+				highest_x = T.x
+			else if(T.x > highest_x)
+				highest_x = T.x
+
+			if(lowest_y == null)
+				lowest_y = T.y
+			else if(T.y < lowest_y)
+				lowest_y = T.y
+
+			if(highest_y == null)
+				highest_y = T.y
+			else if(T.y > highest_y)
+				highest_y = T.y
+
+		for(var/obj/turf_holder_for_vis_contents/thing in elevator_animation.vis_contents)
+			var/turf/T = locate(/turf) in thing.vis_contents
+			if(!T)
+				continue
+			thing.pixel_x = (T.x - lowest_x) * world.icon_size
+			thing.pixel_y = (T.y - lowest_y) * world.icon_size
+
+		/*
 		for(var/turf/vis_turf in elevator_animation.vis_contents)
 			for(var/atom/movable/vis_content in vis_turf.contents)
 				vis_content.blocks_emissive = EMISSIVE_BLOCK_NONE
-				vis_content.update_emissive_block()
+				vis_content.update_emissive_block()*/
 
-		//If we are at the away_area then we are just pretending to move, otherwise actually do the move
 		if (origin != away_area)
 			playsound(locate(Elevator_x,Elevator_y,Elevator_z), 'sound/machines/asrs_lowering.ogg', 50, 0)
 			move(origin, away_area)
-			SW.forceMove(locate(Elevator_x-2,Elevator_y-2,Elevator_z))
-			SE.forceMove(locate(Elevator_x+2,Elevator_y-2,Elevator_z))
-			NW.forceMove(locate(Elevator_x-2,Elevator_y+2,Elevator_z))
-			NE.forceMove(locate(Elevator_x+2,Elevator_y+2,Elevator_z))
-			SW.icon_state = "supply_elevator_lowering"
-			SE.icon_state = "supply_elevator_lowering"
-			NW.icon_state = "supply_elevator_lowering"
-			NE.icon_state = "supply_elevator_lowering"
+			the_pit.forceMove(locate(Elevator_x,Elevator_y, Elevator_z))
 			animate(elevator_animation, pixel_x = 160, pixel_y = -80, time = 2 SECONDS)
 			start_gears(SOUTH)
 			sleep(21)
-			SW.icon_state = "supply_elevator_lowered"
-			SE.icon_state = "supply_elevator_lowered"
-			NW.icon_state = "supply_elevator_lowered"
-			NE.icon_state = "supply_elevator_lowered"
 			sleep(70)
 		else
 			playsound(locate(Elevator_x,Elevator_y,Elevator_z), 'sound/machines/asrs_raising.ogg', 50, 0)
 			start_gears(NORTH)
 			sleep(70)
-			SW.icon_state = "supply_elevator_raising"
-			SE.icon_state = "supply_elevator_raising"
-			NW.icon_state = "supply_elevator_raising"
-			NE.icon_state = "supply_elevator_raising"
 			animate(elevator_animation, pixel_x = 0, pixel_y = 0, time = 2 SECONDS)
 			sleep(2 SECONDS)
-			SW.moveToNullspace()
-			SE.moveToNullspace()
-			NW.moveToNullspace()
-			NE.moveToNullspace()
+			the_pit.moveToNullspace()
 			move(away_area, destination)
 
 		moving_status = SHUTTLE_IDLE

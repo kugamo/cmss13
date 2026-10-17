@@ -2010,6 +2010,8 @@
 
 /// Requisitions pit.
 /turf/open/floor/almayer/empty/requisitions
+	icon = null
+	icon_state = null
 
 /turf/open/floor/almayer/empty/requisitions/Initialize(mapload, ...)
 	. = ..()
