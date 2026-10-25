@@ -118,6 +118,7 @@
 // CM largecrates
 /obj/structure/largecrate/random
 	name = "supply crate"
+	climbable = /datum/climbable_config/crate
 	var/num_things = 0
 	var/list/stuff = list(/obj/item/cell/high,
 						/obj/item/storage/belt/utility/full,

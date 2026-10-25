@@ -4,7 +4,7 @@
 
 /obj/structure
 	icon = 'icons/obj/structures/structures.dmi'
-	var/climbable
+	var/datum/climbable_config/climbable
 	var/climb_delay = CLIMB_DELAY_LONG
 	var/breakable
 	var/list/debris
